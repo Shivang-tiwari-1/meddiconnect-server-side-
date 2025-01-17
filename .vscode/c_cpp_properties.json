@@ -1,0 +1,26 @@
+{
+    "configurations": [
+      {
+        "name": "Win32",
+        "includePath": [
+          "${workspaceFolder}/**",  
+         "C:/Users/itach/OneDrive/Desktop/web-projects/mediconnect/backend/node_modules/node-addon-api/**"
+,  
+          "C:/Users/itach/node_modules/**"  
+        ],
+        "defines": [],
+        "compilerPath": "C:/MinGW", 
+        "intelliSenseMode": "gcc-x64",  
+        "browse": {
+          "path": [
+            "${workspaceFolder}",
+            "C:/Users/itach/OneDrive/Desktop/web-projects/mediconnect/backend/node_modules/node-addon-api/**",
+            "C:/Users/itach/node_modules/**"  
+          ],
+          "limitSymbolsToIncludedHeaders": true
+        }
+      }
+    ],
+    "version": 4
+  }
+  
