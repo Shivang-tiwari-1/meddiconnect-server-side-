@@ -12,6 +12,7 @@ const {
 const { getNotificationService } = require("../Services/notificationServices");
 const ApiError = require("../Utils/Apierror.Utils");
 const { createMessage } = require("../Repository/Message.Repo");
+
 module.exports = (socket, io) => {
   socket.on("connected", async (userdata, socketid) => {
     if (socketCollection.size === 0) {
@@ -33,10 +34,11 @@ module.exports = (socket, io) => {
         role: userdata?.role,
       });
     }
-    console.log("from---backend-->", socketCollection);
     const datasent = [...socketCollection.values()].find(
       (user) => user.dataSent === false
     );
+
+    console.log(socketCollection);
 
     sub.unsubscribe(`user:${userdata?._id}`, () => {
       sub.subscribe(`user:${userdata?._id}`, (err) => {
@@ -48,9 +50,8 @@ module.exports = (socket, io) => {
 
     if (datasent && !datasent.dataSent) {
       let user;
-
       if (userdata?.role === "patient") {
-        user = await findPatient(userdata?._id);
+        user = await findPatientId(userdata?._id);
       } else {
         user = await findDoctorId(userdata?._id);
       }
@@ -88,6 +89,26 @@ module.exports = (socket, io) => {
     }
   });
 
+  socket.on("subscribe_events", (receiverid, events) => {
+    console.log("------------------->",receiverid, events);
+    if (events === "ui_update_subs") {
+      sub.subscribe("ui_update", (err, count) => {
+        if (err) {
+          throw new ApiError(
+            404,
+            "could not subscribe to the channel (ui_update)"
+          );
+        } else {
+          console.log(`Subscribed to ${count} ui_update_subs`);
+          const reciver = socketCollection.get(receiverid);
+          if (reciver && reciver?.active) {
+            io.to(reciver.socketid).emit("nav_chat_icon_update");
+          }
+        }
+      });
+    }
+  });
+
   socket.on("sending_message", async (receiver, sender, socketid, message) => {
     if (
       typeof sender === "object" &&
@@ -107,7 +128,7 @@ module.exports = (socket, io) => {
         `${receiverid},${socketid},${message} is missing`
       );
     }
-
+    console.log("------------------message", message);
     const find_sender = await lookup_in_all_collections(sender?.sender);
     if (find_sender) {
       console.log("test2->success");
@@ -116,13 +137,30 @@ module.exports = (socket, io) => {
       throw new ApiError(500, "function failed to produce any result");
     }
 
-    const find_receiver = await lookup_in_all_collections(receiver?.receiver);
-    if (find_receiver) {
+    const sender_isActive = socketCollection.get(find_sender?._id.toString());
+    console.log(sender_isActive);
+    if (sender_isActive && sender_isActive.active) {
       console.log("test3->passed");
     } else {
-      console.log("test3->failed");
+      console.log("test4->failed");
+      throw new ApiError(500, "sender is not active ");
+    }
+
+    const receiver_isActive = socketCollection.get(receiver?.receiver);
+    if (receiver_isActive && receiver_isActive?.active) {
+      console.log("test5->passed");
+    } else {
+      console.log("test5->failed");
+    }
+
+    const find_receiver = await lookup_in_all_collections(receiver?.receiver);
+    if (find_receiver) {
+      console.log("test6->passed");
+    } else {
+      console.log("test6->failed");
       throw new ApiError(500, "function failed to produce any result");
     }
+
     const save_to_db = await createMessage(
       find_sender?._id,
       find_receiver?._id,
@@ -130,9 +168,9 @@ module.exports = (socket, io) => {
       message
     );
     if (save_to_db) {
-      console.log("test4->passed");
+      console.log("test7->passed");
     } else {
-      console.log("test4->failed");
+      console.log("test7->failed");
       throw new ApiError(500, "function failed to create the message");
     }
 
@@ -141,18 +179,17 @@ module.exports = (socket, io) => {
         throw new ApiError(404, `could not publish the message to redis${err}`);
       }
     });
-    console.log(socketid);
-    sub.on("message", (message, err) => {
-      if (err) {
-        throw new ApiError(404, `Could not deliver the message:${message}`);
-      } else {
-        console.log("Sending the message");
-        io.to(socketid).emit("listen_to_message", {
-          role: "sender",
-          text: message,
-          user_Role: find_receiver?.role,
-        });
-      }
+
+    sub.removeAllListeners("message");
+    sub.on("message", (channel, message) => {
+      console.log("Sending the message");
+      console.log(`Received message: ${message} from channel: ${channel}`);
+      io.to(receiver_isActive?.socketid).emit("listen_to_message", {
+        role: "sender",
+        text: message,
+        user_Role: find_receiver?.role,
+      });
+      io.to(receiver_isActive?.socketid).emit("liveMessage", message);
     });
   });
 

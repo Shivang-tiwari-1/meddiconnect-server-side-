@@ -14,6 +14,8 @@ const {
   findDoctorId,
   empty_user_patientStatus,
   decrement_patient_number,
+  lookup_in_all_collections,
+  doctors_in_proximity,
 } = require("../Repository/userRepository");
 const {
   createCurrentDay,
@@ -28,6 +30,8 @@ const {
   convertToISOTime,
 } = require("../../Constants");
 const { emit_Notification } = require("./socket.service");
+const { default: mongoose } = require("mongoose");
+const ApiError = require("../Utils/Apierror.Utils");
 
 exports.get_User_data_logic = async (id) => {
   const user = await findPatientId(id);
@@ -39,7 +43,6 @@ exports.get_User_data_logic = async (id) => {
     return false;
   }
 };
-
 exports.fetch_All_Doctor_logic = async () => {
   const doctors = await fetch_Doc_By_Role();
   if (doctors) {
@@ -57,7 +60,6 @@ exports.fetch_All_Doctor_logic = async () => {
     return false;
   }
 };
-
 exports.book_appointment_logic = async (req) => {
   const io = getSocketIo();
 
@@ -88,10 +90,10 @@ exports.book_appointment_logic = async (req) => {
   }
 
   const authority_check = await verifyAuthority(req, null, currentDay);
-  if (authority_check && typeof authority_check === "object") {
+  if (authority_check.success && typeof authority_check === "object") {
     console.log("test4->passed");
   } else {
-    console.log("test4->failed");
+    console.log("test4->failed", authority_check.message);
     return false;
   }
 
@@ -212,7 +214,6 @@ exports.book_appointment_logic = async (req) => {
     return false;
   }
 };
-
 exports.boo_Appointment_Manually_logic = async (day, time, req) => {
   const date = Day_time_managment(day, null);
   if (date && typeof date === "object") {
@@ -222,7 +223,7 @@ exports.boo_Appointment_Manually_logic = async (day, time, req) => {
     return false;
   }
 
-  const Isos_time = convertToISOTime(time).slice(11,-4);
+  const Isos_time = convertToISOTime(time).slice(11, -4);
   if (convertToISOTime) {
     console.log("test2->passed");
   } else {
@@ -370,7 +371,6 @@ exports.boo_Appointment_Manually_logic = async (day, time, req) => {
     return false;
   }
 };
-
 exports.cancle_Appointment_logic = async (doc_id, appo_id) => {
   const find_Patient = await findPatientId(pat_id);
   if (find_Patient) {
@@ -466,9 +466,7 @@ exports.cancle_Appointment_logic = async (doc_id, appo_id) => {
     return true;
   }
 };
-
 exports.history_logic = async () => {};
-
 exports.get_Doctor_Details_logic = async (pat_id, doc_id) => {
   const find_user = await findPatientId(pat_id);
   if (find_user) {
@@ -486,8 +484,11 @@ exports.get_Doctor_Details_logic = async (pat_id, doc_id) => {
     return false;
   }
 };
-
 exports.data_logic = async (id) => {
+  console.log("here is ----->?", id);
+  if (!id && !mongoose.ObjectId.isValid(id))
+    return { error: "Invalid User ID" };
+
   const find_doctor = await findPatientId(id);
   if (find_doctor) {
     console.log("test1->passed");
@@ -502,6 +503,32 @@ exports.data_logic = async (id) => {
     return fetch_data;
   } else {
     console.log("test2->failed");
+    return false;
+  }
+};
+exports.find_the_nearest_doc_logic = async (id) => {
+  const { distance } = req.user;
+  if (!distance) return false;
+  if (typeof distance !== "number") Number(distance);
+
+  const user = lookup_in_all_collections(req.user.id);
+  if (user) {
+    console.log("test1->passed");
+  } else {
+    console.log("test2->failed");
+    return false;
+  }
+
+  const finding = await doctors_in_proximity(
+    coordinates[0],
+    coordinates[1],
+    distance
+  );
+  if (finding) {
+    console.log("test1->passed");
+    return finding;
+  } else {
+    console.log("tets2->failed");
     return false;
   }
 };

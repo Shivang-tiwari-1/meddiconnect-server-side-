@@ -1,17 +1,10 @@
 const ApiResponse = require("../Utils/Apiresponse.utils");
-const {
-  filterdetail,
-  options,
-  convertToISOTime,
-  client,
-} = require("../../Constants");
-const Appontment = require("../Models/Appointment.Models");
+const { filterdetail } = require("../../Constants");
 const User = require("../Models/User.Model");
 const Doctor = require("../Models/Doctor.Model");
 const ApiError = require("../Utils/Apierror.Utils");
 const { asyncHandler } = require("../Utils/AsyncHandler.Utiles");
-const { verifyAuthority, message } = require("../Utils/VerfiyAuthority");
-const { decrypt } = require("../Utils/encryptioDecription.Utils");
+const { message } = require("../Utils/VerfiyAuthority");
 const {
   book_appointment_logic,
   fetch_All_Doctor_logic,
@@ -20,17 +13,19 @@ const {
   data_logic,
   cancle_Appointment_logic,
   get_Doctor_Details_logic,
+  find_the_nearest_doc_logic,
 } = require("../Services/patinet.Service");
-const { getSocketIo } = require("../../Constants");
 const { setCahe } = require("../Middleware/Caching.Middleware");
+
 /**************************functions****************************/
 //getUserData
 //fetchAllDoctor
 //BookAppointment
 //BookAppointManually
-//CancleAppointment
+//CancelAppointment
 //History
 //getDoctorDetails
+//nearestDoctor
 /**************************functions****************************/
 exports.getuserData = asyncHandler(async (req, res) => {
   const getting_User_data = await get_User_data_logic(req.user?.id);
@@ -43,7 +38,6 @@ exports.getuserData = asyncHandler(async (req, res) => {
       );
   }
 });
-
 exports.fetchAllDoctors = asyncHandler(async (req, res, next) => {
   //************************************ALGO***************************************/
   //1.find the doctor
@@ -63,7 +57,6 @@ exports.fetchAllDoctors = asyncHandler(async (req, res, next) => {
       .json({ error: "no data received from the filterdetails" });
   }
 });
-
 exports.BookAppointment = asyncHandler(async (req, res) => {
   //************************************ALGO***************************************/
   //1.find the patient
@@ -90,7 +83,6 @@ exports.BookAppointment = asyncHandler(async (req, res) => {
       .json({ error: "could not update create the appointment" });
   }
 });
-
 exports.BookAppointmentManually = asyncHandler(async (req, res) => {
   //************************************ALGO***************************************/
   //1.retrive  time and day from the body
@@ -125,7 +117,6 @@ exports.BookAppointmentManually = asyncHandler(async (req, res) => {
       );
   }
 });
-
 exports.CancleAppointment = asyncHandler(async (req, res) => {
   //************************************ALGO***************************************/
   // 1.find the patient
@@ -149,7 +140,6 @@ exports.CancleAppointment = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, null, "appointment deleted"));
   }
 });
-
 exports.History = asyncHandler(async (req, res) => {
   //1.look for the patient
   //2.convert the object to an array
@@ -237,7 +227,6 @@ exports.History = asyncHandler(async (req, res) => {
     return message(req, res, 500, "technicale error occured");
   }
 });
-
 exports.getDoctorDetails = asyncHandler(async (req, res) => {
   //1.find the patinet
   //2.find the doctor
@@ -258,8 +247,8 @@ exports.getDoctorDetails = asyncHandler(async (req, res) => {
     throw new ApiError(500, "function failed");
   }
 });
-
 exports.fetchSidebarContent = asyncHandler(async (req, res) => {
+  
   const fetching_data = await data_logic(req.user?.id);
   if (fetching_data) {
     console.log(req.query.redisKey);
@@ -269,5 +258,17 @@ exports.fetchSidebarContent = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, fetching_data, "data has been fteched"));
   } else {
     throw new ApiError(404, "could not fetch the data");
+  }
+});
+exports.find_the_nearest = asyncHandler(async (req, res) => {
+  const finding_the_nearest = await find_the_nearest_doc_logic(req);
+  if (finding_the_nearest) {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, finding_the_nearest, "doctors in your proximity ")
+      );
+  } else {
+    throw new ApiError(500, "function failed to fetch the nearest doctor");
   }
 });

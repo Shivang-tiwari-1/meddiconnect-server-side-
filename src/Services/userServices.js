@@ -7,7 +7,7 @@ const {
   save_coordinates_pat,
   save_coordinates_doc,
 } = require("../Repository/userRepository");
-const { asyncHandler } = require("../Utils/AsyncHandler.Utiles");
+const ApiError = require("../Utils/Apierror.Utils");
 const { upload_Single_image } = require("../Utils/Cloudinary.Utils");
 
 exports.create_user_logic = async (userData, file) => {
@@ -23,63 +23,84 @@ exports.create_user_logic = async (userData, file) => {
     latitude,
   } = userData;
   if (
-    !(
-      name &&
-      email &&
-      password &&
-      phone &&
-      address &&
-      role &&
-      gender &&
-      longitude &&
-      latitude
-    )
+    name &&
+    email &&
+    password &&
+    phone &&
+    address &&
+    role &&
+    gender &&
+    longitude &&
+    latitude
   ) {
-    return false;
+    console.log("test1->passed");
+  } else {
+    console.log("test1->failed");
+    throw new ApiError(403, "data is missing");
   }
 
   const uploadimage = await upload_Single_image(file.path);
-  if (!uploadimage) {
-    return false;
+  if (uploadimage) {
+    console.log("test2->passed");
+  } else {
+    console.log("test2->failed");
+    throw new ApiError(404, "could not upload the image ");
   }
 
   if (role === "patient") {
     const user = await createPatient(userData, uploadimage);
-    if (!user) {
-      return false;
-    } else {
+    if (user) {
+      console.log("test3->passed");
       const saving_coordinates = await save_coordinates_pat(
         user?._id.toString(),
         longitude,
         latitude
       );
       if (saving_coordinates) {
+        console.log("test4->passed");
         const synatizedata = filterdetail(user);
-        return synatizedata;
+        if (synatizedata && typeof synatizedata === "object") {
+          console.log("test5->passed");
+          return synatizedata;
+        } else {
+          console.log("test5->failed");
+          throw new ApiError(500, "function failed to hide the sensitive data");
+        }
       } else {
-        return false;
+        console.log("test4->failed");
+        throw new ApiError(500, "function failed to save the coordinates");
       }
+    } else {
+      console.log("test3->failed");
+      throw new ApiError(500, "function failed to create the patient");
     }
   } else {
     const user = await createDoctor(userData, uploadimage);
-    if (!user) {
-      return false;
-    } else {
+    if (user) {
+      console.log("test3->passed");
       const saving_coordinates = await save_coordinates_doc(
         user?._id.toString(),
         longitude,
         latitude
       );
       if (saving_coordinates) {
+        console.log("test4->passed");
         const synatizedata = filterdetail(user);
-        return synatizedata;
+        if (synatizedata && typeof synatizedata === "object") {
+          console.log("test5->passed");
+          return synatizedata;
+        } else {
+          console.log("test5->failed");
+          throw new ApiError(500, "function failed to hide the sensitive data");
+        }
       } else {
-        return false;
+        console.log("test4->failed");
+        throw new ApiError(500, "function failed to save the coordinates");
       }
+    } else {
     }
   }
 };
-
 exports.login_User_logic = async (userData) => {
   const { email, password, role } = userData;
   if (!(email, password, role)) {

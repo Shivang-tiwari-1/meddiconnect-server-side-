@@ -9,6 +9,9 @@ const app = require("./src/App");
 const server = http.createServer(app);
 const { setSocket } = require("./Constants");
 const processMissedJobs = require("./src/ScheduleTasks/startAgenda");
+const {
+  pub_sub_channle_Export,
+} = require("./src/PublishChannles/chnnleExport");
 
 setSocket(server);
 
@@ -22,13 +25,18 @@ async function initialize() {
   }
 }
 
-
 ioconnection();
 
 if (!sticky.listen(server, process.env.PORT || 8000)) {
   console.log("Master process PID:", process.pid);
+  pub_sub_channle_Export();
+
+  // (async () => {
+  //   await processMissedJobs();
+  // })();
 
   const numCPUs = require("os").availableParallelism();
+
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
@@ -43,5 +51,10 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
     await initialize();
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
     await processMissedJobs();
+  });
+
+  process.on("uncaughtException", (err) => {
+    console.error("Worker died due to uncaught exception:", err);
+    process.exit(1);
   });
 }

@@ -82,10 +82,12 @@ exports.verifyAuthority = async (req, docId, day) => {
         console.log("test4->failed");
         return false;
       }
+      console.log("check_for_the_day->", check_for_the_day);
 
       //9
       const now = currentTime();
       const endTime = createTime(existence_of_day?.end);
+      console.log(moment(now).isBefore(moment(endTime)));
       if (moment(now).isBefore(moment(endTime))) {
         //10
         if (
@@ -103,7 +105,11 @@ exports.verifyAuthority = async (req, docId, day) => {
           currentNumber: existence_of_day?.laterNumber?.number,
         };
       } else {
-        return false;
+        console.log("here");
+        return {
+          success: false,
+          message: "clinic is closed",
+        };
       }
     }
   }

@@ -4,16 +4,15 @@ const { asyncHandler } = require("../Utils/AsyncHandler.Utiles");
 const User = require("../Models/User.Model");
 const { getLineNumber } = require("../Utils/ErrorAtLine");
 const { message } = require("../Utils/VerfiyAuthority");
+const { default: mongoose } = require("mongoose");
+const { ObjectId } = require("mongoose").Types;
 
 exports.authentication = asyncHandler(async (req, res, next) => {
   console.log("|authentication starts|");
-
   const authHeader = req.headers.authorization || req.headers.Authorization;
   let tokenFromHeader = authHeader?.startsWith("Bearer ")
     ? authHeader.split(" ")[1]
     : null;
-  // const { accessToken } = req.cookies;
-  // !tokenFromHeader ? (tokenFromHeader = accessToken) : tokenFromHeader;
   if (tokenFromHeader !== null) {
     console.log("test1-token-passed");
   } else {
@@ -26,8 +25,9 @@ exports.authentication = asyncHandler(async (req, res, next) => {
     console.log("test2-token-passed");
   } else {
     console.log("test2-token-failed");
-    return message(req, res, 500, "could nto decode");
+    return message(req, res, 500, "invalid token user id");
   }
+  
 
   if (decode?.role === "patient") {
     const data = await User.findById(decode.id);

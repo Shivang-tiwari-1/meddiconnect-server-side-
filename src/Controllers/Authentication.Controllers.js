@@ -4,7 +4,12 @@ const User = require("../Models/User.Model");
 const { asyncHandler } = require("../Utils/AsyncHandler.Utiles");
 const ApiResponse = require("../Utils/Apiresponse.utils");
 const { GenerateTokens } = require("../Utils/SendToken.utils");
-const { options, filterdetail, client, socketCollection } = require("../../Constants");
+const {
+  options,
+  filterdetail,
+  client,
+  socketCollection,
+} = require("../../Constants");
 const { getLineNumber } = require("../Utils/ErrorAtLine");
 const { validation, message } = require("../Utils/VerfiyAuthority");
 const { encrypt } = require("../Utils/encryptioDecription.Utils");
@@ -15,7 +20,6 @@ const {
 } = require("../Services/userServices");
 
 exports.createUser = asyncHandler(async (req, res) => {
-
   const {
     name,
     email,
@@ -44,6 +48,8 @@ exports.createUser = asyncHandler(async (req, res) => {
     return message(req, res, 500, "all fields are required");
   }
 
+  console.log("req.file---->", req.file);
+
   const user = await create_user_logic(req.body, req.file);
   if (user) {
     console.log("test3->passed");
@@ -53,7 +59,6 @@ exports.createUser = asyncHandler(async (req, res) => {
     return message(req, res, 403, "could not create the user");
   }
 });
-
 exports.loginUser = asyncHandler(async (req, res) => {
   const { email, password, role } = req.body;
   if (email && password && role) {
@@ -90,7 +95,6 @@ exports.loginUser = asyncHandler(async (req, res) => {
       )
     );
 });
-
 exports.forgotPass = asyncHandler(async (req, res) => {
   const { oldpass, newpass } = req.body;
   if (!oldpass && !newpass) {
@@ -152,12 +156,10 @@ exports.forgotPass = asyncHandler(async (req, res) => {
       )
     );
 });
-
 exports.deleteAccount = asyncHandler(async (req, res) => {
   //have to schedule the account for deletion
   //if before scheduled time the user logds back in that means he will keep the account
 });
-
 exports.logout = asyncHandler(async (req, res) => {
   const data = await validation(req, res);
   if (data) {
@@ -210,7 +212,6 @@ exports.logout = asyncHandler(async (req, res) => {
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, null, "user logged out"));
 });
-
 exports.updateUsre = asyncHandler(async (req, res) => {
   const { name, email, password, phone, address } = req?.body;
 
@@ -270,7 +271,6 @@ exports.updateUsre = asyncHandler(async (req, res) => {
 
   return message(req, res, 200, new ApiResponse(200, user, "user updated"));
 });
-
 exports.refreshAccessToken = asyncHandler(async (req, res) => {
   const refreshtoken = await req.cookies?.refreshToken;
 

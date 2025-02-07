@@ -61,7 +61,6 @@ agenda.define(
       console.log("test1-failed");
       throw new ApiError(500, "could not find the doctorid");
     }
-
     //2
     const doctor = await Doctor.findById(doctorId);
     if (doctor) {
@@ -70,7 +69,6 @@ agenda.define(
       console.log("test2-failed");
       throw new ApiError(403, `doctor with ${doctorId} not found`);
     }
-
     //3
     for (let i = 0; i < doctor?.availability?.length; i++) {
       const availabilityDate = doctor?.availability[i]?.date;
@@ -99,7 +97,6 @@ agenda.define(
     } else {
       console.log("test3->failed");
     }
-
     //5
     next_date = updateAvailabilityDates(
       normalizedUpdateDay,
@@ -150,7 +147,6 @@ agenda.define(
           );
       }
     }
-
     //7
     const fetch_Patient_id = await Appontment.find({ doctor: doctor?.id });
     if (fetch_Patient_id) {

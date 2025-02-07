@@ -14,11 +14,11 @@ const { Day_time_managment } = require("../Utils/Utility.Utils.");
 const { message } = require("../Utils/VerfiyAuthority");
 const { upload_multiple_file } = require("../Utils/Cloudinary.Utils");
 const { emit_Notification } = require("../Services/socket.service");
-const { data_logic } = require("../Services/doctor.Service");
+const { data_logic, setCriteria_logic } = require("../Services/doctor.Service");
 const ApiError = require("../Utils/Apierror.Utils");
 
 //************************************functionalities**************************************//
-// GetDoctordetais --- account detail
+//GetDoctordetais --- account detail
 //SetDoctorAvailabilty --- sets the number of day the doctor will be available
 //GetDetailsOfThePatient --- patient who have appointment to the Doctor can see there details
 //prescribeMedicine --- after checkup doctor will be available to prescribe medicine
@@ -44,7 +44,6 @@ exports.getDoctorData = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, filterdetails, "docotr fetched successfully"));
   }
 });
-
 exports.setCriteria = asyncHandler(async (req, res) => {
   //algo
   //1.retrieve data (Array format with objects in it length > 0 )
@@ -59,7 +58,6 @@ exports.setCriteria = asyncHandler(async (req, res) => {
   //)
   //10. if promise is complete send the response
 
-  //1
   const { data } = req.body;
   if (Array.isArray(data) && data?.length > 0 && data) {
     console.log("test1-passed");
@@ -67,126 +65,17 @@ exports.setCriteria = asyncHandler(async (req, res) => {
     console.log("test1-failed");
     return message(req, res, 401, "Data could not be fetched");
   }
-  //2
-  const find_doctor = await Doctor.findById(req.doctor?.id);
-  if (find_doctor) {
-    console.log("test2->passed");
+
+  const setting = await setCriteria_logic(req, data);
+  if (setting) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "criteria has been set"));
   } else {
-    console.log("test2->failed");
-    return message(req, res, 403, "could not find the doctor");
+    throw new ApiError(500, "function failed to create the doc");
   }
-  //3
-  await Promise.all(
-    data.map(async (item) => {
-      //4
-      const scheduledTime = Day_time_managment(item.day, item.end);
-      if (
-        scheduledTime &&
-        typeof scheduledTime === "object" &&
-        scheduledTime.targetDateTime &&
-        typeof scheduledTime.targetDateTime === "string" &&
-        scheduledTime.date &&
-        typeof scheduledTime.date === "string"
-      ) {
-        console.log("test3->passed");
-      } else {
-        console.log("test3->failed");
-        return message(req, res, 500, "error occurred with scheduledTime");
-      }
-      //5
-      const startTimeISO = convertToISOTime(item.start)?.slice(11, -4);
-      if (startTimeISO && typeof startTimeISO === "string") {
-        console.log("test4->passed");
-      } else {
-        console.log("test4->failed");
-        return message(
-          req,
-          res,
-          500,
-          "something went wrong with startTimeISO "
-        );
-      }
-      //6
-      const endTimeISO = convertToISOTime(item.end)?.slice(11, -4);
-      if (endTimeISO && typeof endTimeISO === "string") {
-        console.log("test5->passed");
-      } else {
-        console.log("test5->failed");
-        return message(req, res, 500, "something went wrong with endTimeISO");
-      }
-      //7
-      const isOverlapping = find_doctor?.availability?.some((status) => {
-        return (
-          status.day === item.day &&
-          ((startTimeISO >= status.start && startTimeISO <= status.end) ||
-            (endTimeISO >= status.start && endTimeISO <= status.end))
-        );
-      });
-      if (isOverlapping) {
-        console.log("test6->failed");
-        return message(req, res, 500, "entry already exists");
-      } else {
-        console.log("test6->passed");
-      }
-
-      if (find_doctor?.availability?.length >= 7) {
-        return message(req, res, 500, "reached limit");
-      }
-      //8
-      const create_entry = await Doctor.findByIdAndUpdate(
-        find_doctor.id,
-        {
-          $push: {
-            availability: {
-              day: item.day,
-              start: startTimeISO,
-              end: endTimeISO,
-              date: scheduledTime.date,
-              available: true,
-            },
-          },
-          $set: { Max: item.HowManyPatients },
-        },
-        { new: true }
-      );
-      if (create_entry) {
-        console.log("test7->passed");
-      } else {
-        console.log("test7->failed");
-        return message(req, res, 403, "could not create entry");
-      }
-
-      const matchingAvailability = create_entry.availability.find(
-        (availability) => availability.day === item.day
-      );
-      //9
-      const job = await agenda.schedule(
-        scheduledTime.targetDateTime,
-        "remove expired availability",
-        {
-          doctorId: find_doctor._id,
-          objectId: matchingAvailability._id,
-        }
-      );
-      if (job) {
-        console.log("test8->passed");
-      } else {
-        console.log("test8->failed");
-        return message(req, res, 500, "something went wrong with setting job");
-      }
-    })
-  );
-  //10
-  console.log("test9->passed");
-  return res.json(
-    new ApiResponse(
-      200,
-      find_doctor,
-      "criteria has been set and all the job has been scheduled"
-    )
-  );
+  
 });
-
 exports.getDetailOfthePatient = asyncHandler(async (req, res) => {
   const pipeline = await Doctor.aggregate([
     {
@@ -262,7 +151,6 @@ exports.getDetailOfthePatient = asyncHandler(async (req, res) => {
     return message(req, res, 204, "you have no patients yet");
   }
 });
-
 exports.manualUpdate = asyncHandler(async (req, res) => {
   //1.look for rhe doctor
   //2.look for the patient
@@ -361,7 +249,6 @@ exports.manualUpdate = asyncHandler(async (req, res) => {
     return message(req, res, 404, "bad request");
   }
 });
-
 exports.prescribeMedicine = asyncHandler(async (req, res) => {
   const { prescription } = req.file;
   if (Buffer.isBuffer(prescription)) {
@@ -469,7 +356,6 @@ exports.prescribeMedicine = asyncHandler(async (req, res) => {
     return message(req, res, 401, "could not update the prescription");
   }
 });
-
 exports.spealisesIn = asyncHandler(async (req, res) => {
   /*********************************************algo****************************************/
   // 1.retrieve the specialization from the body
@@ -546,7 +432,6 @@ exports.spealisesIn = asyncHandler(async (req, res) => {
     return message(req, res, 400, "could not update");
   }
 });
-
 exports.patientHistory = asyncHandler(async (req, res) => {
   let patient_date = [];
   const find_doctor = await Doctor.findById(req.doctro.id);
@@ -611,7 +496,6 @@ exports.patientHistory = asyncHandler(async (req, res) => {
     return message(req, res, 500, "technicale error occured");
   }
 });
-
 exports.quallification = asyncHandler(async (req, res) => {
   if (!req.files) {
     console.log("files");
@@ -706,8 +590,4 @@ exports.quallification = asyncHandler(async (req, res) => {
     return message(req, res, 400, "could not update the qualification");
   }
 });
-
-exports.weekly_appointemnt_data = asyncHandler(async (req, res) => {
-
-  
-});
+exports.weekly_appointemnt_data = asyncHandler(async (req, res) => {});

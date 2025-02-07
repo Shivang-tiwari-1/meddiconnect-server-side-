@@ -25,7 +25,6 @@ exports.createDoctor = async (doctorDate, uploadimage) => {
     return user;
   }
 };
-
 exports.createPatient = async (patientData, uploadimage) => {
   const { name, email, password, phone, address, role, gender } = patientData;
 
@@ -46,7 +45,6 @@ exports.createPatient = async (patientData, uploadimage) => {
     return user;
   }
 };
-
 exports.findDoctor = async (doctorData) => {
   const doctor = await Doctor.findOne({ email: doctorData });
 
@@ -56,16 +54,14 @@ exports.findDoctor = async (doctorData) => {
     return doctor;
   }
 };
-
-exports.findPatient = async (userData) => {
-  const patient = await User.findOne({ email: userData });
+exports.findPatient = async (email) => {
+  const patient = await User.findOne({ email: email });
   if (!patient) {
     return false;
   } else {
     return patient;
   }
 };
-
 exports.findDoctorId = async (Id) => {
   const doctor = await Doctor.findById(Id);
   if (!doctor) {
@@ -74,7 +70,6 @@ exports.findDoctorId = async (Id) => {
     return doctor;
   }
 };
-
 exports.findPatientId = async (Id) => {
   if (typeof Id !== "string") {
     const id_to_String = String(Id);
@@ -93,7 +88,6 @@ exports.findPatientId = async (Id) => {
     }
   }
 };
-
 exports.saveData = async (datatosave, valutoassign) => {
   if (datatosave instanceof mongoose.Document) {
     const data = (datatosave = valutoassign);
@@ -105,7 +99,6 @@ exports.saveData = async (datatosave, valutoassign) => {
     }
   }
 };
-
 exports.find_one_And_Update_doc_avail = async (id, currentDay) => {
   const update = await Doctor.findOneAndUpdate(
     { _id: id },
@@ -116,7 +109,6 @@ exports.find_one_And_Update_doc_avail = async (id, currentDay) => {
     return update;
   }
 };
-
 exports.find_By_Id_and_update_patient_status = async (
   id,
   patientNumber,
@@ -145,14 +137,12 @@ exports.find_By_Id_and_update_patient_status = async (
     return update;
   }
 };
-
 exports.fetch_Doc_By_Role = async () => {
   const doctors = await Doctor.find({ role: "doctor" });
   if (doctors) {
     return doctors;
   }
 };
-
 exports.data_fetch = async () => {
   const data_fetch = await Doctor.aggregate([
     {
@@ -204,7 +194,6 @@ exports.data_fetch = async () => {
     return false;
   }
 };
-
 exports.empty_user_patientStatus = async (id) => {
   const remove_User_Documente = await User.findByIdAndUpdate(
     id,
@@ -219,7 +208,6 @@ exports.empty_user_patientStatus = async (id) => {
     return false;
   }
 };
-
 exports.decrement_patient_number = async (id, day) => {
   const decrement_Doctor_number = await Doctor.updateOne(
     { _id: id },
@@ -239,26 +227,26 @@ exports.decrement_patient_number = async (id, day) => {
     return false;
   }
 };
-
 exports.save_coordinates_pat = async (id, longitude, latitude) => {
-  const coordinates = await User.findOneAndUpdate(
-    { _id: id },
-    {
-      coordinates: [longitude, latitude],
-    },
-    {
-      new: true,
+  if (role === "patient") {
+    const coordinates = await User.findOneAndUpdate(
+      { _id: id },
+      {
+        coordinates: [longitude, latitude],
+      },
+      {
+        new: true,
+      }
+    );
+    if (coordinates) {
+      return true;
+    } else {
+      return false;
     }
-  );
-  if (coordinates) {
-    return true;
-  } else {
-    return false;
   }
 };
-
 exports.save_coordinates_doc = async (id, longitude, latitude) => {
-  const coordinates = await patient.findOneAndUpdate(
+  const coordinates = await Doctor.findOneAndUpdate(
     { _id: id },
     {
       coordinates: [longitude, latitude],
@@ -273,7 +261,6 @@ exports.save_coordinates_doc = async (id, longitude, latitude) => {
     return false;
   }
 };
-
 exports.weekly_appointment = async (id) => {
   const data_fetch = await Doctor.aggregate([
     {
@@ -297,7 +284,6 @@ exports.weekly_appointment = async (id) => {
     return data_fetch;
   }
 };
-
 exports.saveMessage_sender = async (patientId, doctorId, message, role) => {
   const saveMessage = await Messages.create({
     from: role === "doctor" ? doctorId : patientId,
@@ -311,7 +297,6 @@ exports.saveMessage_sender = async (patientId, doctorId, message, role) => {
     return true;
   }
 };
-
 exports.lookup_in_all_collections = async (id) => {
   const user = await User.findById(id);
   if (!user) {
@@ -333,5 +318,55 @@ exports.lookup_in_all_collections = async (id) => {
     } else {
       throw new ApiError(500, "could not sanitize the data");
     }
+  }
+};
+exports.doctors_in_proximity = async (longitude, latitude, distance) => {
+  if ((!longitude, !latitude, !distance)) {
+    return false;
+  }
+  const find_the_nearest = await Doctor.aggregate([
+    {
+      $geoNear: {
+        near: { type: "point", coordinates: [longitude, latitude] },
+        distanceField: "distance",
+        maxDistance: distance,
+        spherical: true,
+      },
+    },
+  ]);
+  if (find_the_nearest) {
+    return find_the_nearest;
+  } else {
+    return false;
+  }
+};
+exports.update_doc_schedule = async (
+  id,
+  day,
+  startTimeISO,
+  endTimeISO,
+  date,
+  HowManyPatients
+) => {
+  const create_entry = await Doctor.findByIdAndUpdate(
+   id,
+    {
+      $push: {
+        availability: {
+          day: day,
+          start: startTimeISO,
+          end: endTimeISO,
+          date: date,
+          available: true,
+        },
+      },
+      $set: { Max: HowManyPatients },
+    },
+    { new: true }
+  );
+  if (create_entry) {
+    return create_entry;
+  } else {
+    throw new ApiError(403, "could not create the doctor entry");
   }
 };
