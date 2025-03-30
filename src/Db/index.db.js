@@ -12,6 +12,7 @@ exports.connectToMongo = async () => {
       connectionInstance.connection.host
     );
   } catch (error) {
+    console.log("|||||||||||||||||||||||||||||||||||||||||||||||")
     throw new ApiError(500, `could not connect ${error}`);
   }
 };

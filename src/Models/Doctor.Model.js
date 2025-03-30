@@ -69,6 +69,11 @@ const DoctorSchema = new mongoose.Schema(
         _id: false,
       },
     ],
+    Working_At: {
+      type: String,
+      enum: ["Hospital", "Clinic", "Private Practice", "Other"],
+      required: true,
+    },
     refreshToken: { type: String },
     isActive: { type: Boolean, default: false },
     charges: { type: Number, default: 0 },

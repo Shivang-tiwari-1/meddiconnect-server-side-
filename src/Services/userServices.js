@@ -1,5 +1,9 @@
 const { filterdetail } = require("../../Constants");
 const {
+  setuser_is_active_data,
+  set_patient_active,
+} = require("../Middleware/Caching.Middleware");
+const {
   createDoctor,
   createPatient,
   findDoctor,
@@ -115,7 +119,17 @@ exports.login_User_logic = async (userData) => {
       const passwordCompare = await patient?.comparePassword(password);
       if (patient && passwordCompare) {
         const synatizedata = filterdetail(patient);
-        return synatizedata;
+        const setid = await set_patient_active(
+          patient?._id.toString(),
+          patient?.role
+        );
+        if (setid === null || setid === undefined) {
+          console.log("test4->passed");
+          return synatizedata;
+        } else {
+          console.log("test4->failed");
+          throw new ApiError(500, "function failed to cache the data ");
+        }
       } else {
         return false;
       }
@@ -130,7 +144,18 @@ exports.login_User_logic = async (userData) => {
       const passwordCompare = await doctor?.comparePassword(password);
       if (passwordCompare) {
         const synatizedata = filterdetail(doctor);
-        return synatizedata;
+
+        const setid = await setuser_is_active_data(
+          doctor?._id.toString(),
+          doctor?.role
+        );
+        if (setid === null || setid === undefined) {
+          console.log("test4->passed");
+          return synatizedata;
+        } else {
+          console.log("test4->failed");
+          throw new ApiError(500, "function failed to cache the data ");
+        }
       }
     } else {
       return false;

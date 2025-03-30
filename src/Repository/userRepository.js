@@ -306,6 +306,7 @@ exports.lookup_in_all_collections = async (id) => {
     } else {
       const sanitize_data = filterdetail(user);
       if (sanitize_data) {
+        console.log("------------>", sanitize_data);
         return sanitize_data;
       } else {
         throw new ApiError(500, "could not sanitize the data");
@@ -314,6 +315,8 @@ exports.lookup_in_all_collections = async (id) => {
   } else {
     const sanitize_data = filterdetail(user);
     if (sanitize_data) {
+      console.log("------------>", sanitize_data);
+
       return sanitize_data;
     } else {
       throw new ApiError(500, "could not sanitize the data");
@@ -349,7 +352,7 @@ exports.update_doc_schedule = async (
   HowManyPatients
 ) => {
   const create_entry = await Doctor.findByIdAndUpdate(
-   id,
+    id,
     {
       $push: {
         availability: {

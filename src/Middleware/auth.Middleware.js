@@ -5,6 +5,7 @@ const User = require("../Models/User.Model");
 const { getLineNumber } = require("../Utils/ErrorAtLine");
 const { message } = require("../Utils/VerfiyAuthority");
 const { default: mongoose } = require("mongoose");
+const ApiError = require("../Utils/Apierror.Utils");
 const { ObjectId } = require("mongoose").Types;
 
 exports.authentication = asyncHandler(async (req, res, next) => {
@@ -16,8 +17,8 @@ exports.authentication = asyncHandler(async (req, res, next) => {
   if (tokenFromHeader !== null) {
     console.log("test1-token-passed");
   } else {
-    console.log("test2-token-failed");
-    return message(req, res, 500, "no token found");
+    console.log("test1-token-failed");
+    throw new ApiError(400, "no token found");
   }
 
   const decode = jwt.verify(tokenFromHeader, process.env.GENERATE_TOKEN_SECRET);
@@ -27,7 +28,6 @@ exports.authentication = asyncHandler(async (req, res, next) => {
     console.log("test2-token-failed");
     return message(req, res, 500, "invalid token user id");
   }
-  
 
   if (decode?.role === "patient") {
     const data = await User.findById(decode.id);

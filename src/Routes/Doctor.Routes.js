@@ -147,21 +147,21 @@ router.post(
       })
       .withMessage("field is required"),
   ],
-  deoctorAuthentiaction,
+  authentication,
   verifyAuthorityUser,
   setCriteria
 );
 //manuallyupdate
 router.post(
   "/updatemanually",
-  deoctorAuthentiaction,
+  authentication,
   verifyAuthorityUser,
   manualUpdate
 );
 //specalization
 router.post(
   "/spealisesIn",
-  deoctorAuthentiaction,
+  authentication,
   verifyAuthorityUser,
   spealisesIn
 );

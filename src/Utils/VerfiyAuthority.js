@@ -69,26 +69,25 @@ exports.verifyAuthority = async (req, docId, day) => {
       } else {
         console.log("test3->passed");
       }
-
       //8
-      const check_for_the_day = findDoctor?.availability
-        ?.map((slot) => {
-          return slot.day === existence_of_day?.day;
-        })
-        .filter(Boolean);
+      const check_for_the_day = findDoctor?.availability?.find((slot) => {
+        return slot.day === existence_of_day?.day;
+      });
       if (check_for_the_day) {
         console.log("test4->passed");
       } else {
         console.log("test4->failed");
         return false;
       }
-      console.log("check_for_the_day->", check_for_the_day);
 
       //9
       const now = currentTime();
-      const endTime = createTime(existence_of_day?.end);
-      console.log(moment(now).isBefore(moment(endTime)));
-      if (moment(now).isBefore(moment(endTime))) {
+      const endTime = createTime(check_for_the_day?.end);
+      const startTime = createTime(check_for_the_day?.start);
+      if (
+        moment(now).isBefore(moment(endTime)) &&
+        moment(now).isAfter(startTime)
+      ) {
         //10
         if (
           req.isBookingAppointment &&

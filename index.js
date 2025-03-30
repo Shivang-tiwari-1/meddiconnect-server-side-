@@ -9,10 +9,8 @@ const app = require("./src/App");
 const server = http.createServer(app);
 const { setSocket } = require("./Constants");
 const processMissedJobs = require("./src/ScheduleTasks/startAgenda");
-const {
-  pub_sub_channle_Export,
-} = require("./src/PublishChannles/chnnleExport");
-
+const { pub_sub_channle_Export } = require("./src/Redis/PublishChannles/chnnleExport");
+const os = require("os");
 setSocket(server);
 
 async function initialize() {
@@ -31,12 +29,8 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
   console.log("Master process PID:", process.pid);
   pub_sub_channle_Export();
 
-  // (async () => {
-  //   await processMissedJobs();
-  // })();
-
   const numCPUs = require("os").availableParallelism();
-
+  console.log(os.arch());
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
@@ -46,6 +40,8 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
     cluster.fork();
   });
 } else {
+  const { signals } = require("os").constants;
+
   console.log(`Worker process PID: ${process.pid}`);
   server.listen(async () => {
     await initialize();
@@ -56,5 +52,10 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
   process.on("uncaughtException", (err) => {
     console.error("Worker died due to uncaught exception:", err);
     process.exit(1);
+  });
+
+  process.on("SIGINT", () => {
+    console.log(`Received ${signals.SIGINT}, exiting gracefully...`);
+    process.exit(0);
   });
 }

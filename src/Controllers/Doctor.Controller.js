@@ -74,7 +74,6 @@ exports.setCriteria = asyncHandler(async (req, res) => {
   } else {
     throw new ApiError(500, "function failed to create the doc");
   }
-  
 });
 exports.getDetailOfthePatient = asyncHandler(async (req, res) => {
   const pipeline = await Doctor.aggregate([
@@ -513,6 +512,12 @@ exports.quallification = asyncHandler(async (req, res) => {
   ) {
     return message(req, res, 400, "all fields are required");
   }
+
+  console.log("---->",
+    MedicalRegistrationCertificate,
+    MBBSDegree,
+    StateMedicalCouncilRegistration
+  );
 
   const store_information = [
     MedicalRegistrationCertificate,

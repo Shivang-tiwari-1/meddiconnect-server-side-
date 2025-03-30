@@ -4,16 +4,8 @@ const User = require("../Models/User.Model");
 const { asyncHandler } = require("../Utils/AsyncHandler.Utiles");
 const ApiResponse = require("../Utils/Apiresponse.utils");
 const { GenerateTokens } = require("../Utils/SendToken.utils");
-const {
-  options,
-  filterdetail,
-  client,
-  socketCollection,
-} = require("../../Constants");
-const { getLineNumber } = require("../Utils/ErrorAtLine");
+const { options, filterdetail } = require("../../Constants");
 const { validation, message } = require("../Utils/VerfiyAuthority");
-const { encrypt } = require("../Utils/encryptioDecription.Utils");
-const { upload_Single_image } = require("../Utils/Cloudinary.Utils");
 const {
   create_user_logic,
   login_User_logic,

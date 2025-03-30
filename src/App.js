@@ -7,6 +7,7 @@ const DoctorRoute = require("./Routes/Doctor.Routes");
 const ReviewRoute = require("./Routes/Review.Routes");
 const NotificationRoute = require("./Routes/Notification.Routes");
 const Authentication = require("./Routes/Authenticate.Routes");
+const message = require("./Routes/Message.Route");
 const logger = require("./Utils/Logger");
 const morgan = require("morgan");
 const app = express();
@@ -43,5 +44,5 @@ app.use("/api/doctor", DoctorRoute);
 app.use("/api/review", ReviewRoute);
 app.use("/api/Notification", NotificationRoute);
 app.use("/api/authenticate", Authentication);
-
+app.use("/api/message", message);
 module.exports = app;
