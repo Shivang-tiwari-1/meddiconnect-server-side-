@@ -19,7 +19,7 @@ exports.sending_data = (data, objective) => {
         } else if (objective === "redis_messages") {
           data?.io
             .to(data?.reciverSocketid)
-            .emit("patient_Information", { Data, objective });
+            .emit("patient_Information", { Data, objective, role: data.role });
         }
         break;
 
@@ -31,7 +31,10 @@ exports.sending_data = (data, objective) => {
             user_Role: data?.user_Role,
           });
         }
+        break;
 
+      case "doctor_information_channel":
+      
         break;
     }
   });

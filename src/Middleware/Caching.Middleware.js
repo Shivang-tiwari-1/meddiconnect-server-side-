@@ -11,6 +11,7 @@ const {
   remove_data,
   fetchToDelete,
 } = require("../Redis/RedisListOperation/RedisList");
+const { socket } = require("../../Constants");
 
 exports.cacheMiddlWare = asyncHandler(async (req, res, next) => {
   console.log("|||");
@@ -129,7 +130,7 @@ exports.setuser_is_active_data = asyncHandler(async (userid, role) => {
       if (filterdata === undefined) {
         throw new ApiError("could not find  the document");
       }
-      console.log(filterdata);
+    
       const remove_prev_data = await remove_data(filterdata?.role, filterdata);
       if (!remove_prev_data) {
         throw new ApiError(500, "could not remove the prev data ");

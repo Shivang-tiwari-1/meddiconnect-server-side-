@@ -119,17 +119,18 @@ exports.login_User_logic = async (userData) => {
       const passwordCompare = await patient?.comparePassword(password);
       if (patient && passwordCompare) {
         const synatizedata = filterdetail(patient);
-        const setid = await set_patient_active(
-          patient?._id.toString(),
-          patient?.role
-        );
-        if (setid === null || setid === undefined) {
-          console.log("test4->passed");
-          return synatizedata;
-        } else {
-          console.log("test4->failed");
-          throw new ApiError(500, "function failed to cache the data ");
-        }
+        // const setid = await set_patient_active(
+        //   patient?._id.toString(),
+        //   patient?.role
+        // );
+        // if (setid === null || setid === undefined) {
+        //   console.log("test4->passed");
+
+        // } else {
+        //   console.log("test4->failed");
+        //   throw new ApiError(500, "function failed to cache the data ");
+        // }
+        return synatizedata;
       } else {
         return false;
       }
@@ -145,17 +146,18 @@ exports.login_User_logic = async (userData) => {
       if (passwordCompare) {
         const synatizedata = filterdetail(doctor);
 
-        const setid = await setuser_is_active_data(
-          doctor?._id.toString(),
-          doctor?.role
-        );
-        if (setid === null || setid === undefined) {
-          console.log("test4->passed");
-          return synatizedata;
-        } else {
-          console.log("test4->failed");
-          throw new ApiError(500, "function failed to cache the data ");
-        }
+        // const setid = await setuser_is_active_data(
+        //   doctor?._id.toString(),
+        //   doctor?.role
+        // );
+        // if (setid === null || setid === undefined) {
+        //   console.log("test4->passed");
+        //   return synatizedata;
+        // } else {
+        //   console.log("test4->failed");
+        //   throw new ApiError(500, "function failed to cache the data ");
+        // }
+        return synatizedata;
       }
     } else {
       return false;

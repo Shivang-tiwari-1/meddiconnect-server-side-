@@ -17,7 +17,6 @@ exports.fetch_data = async (role) => {
     }
   }
 };
-
 exports.push_data = async (data, role) => {
   console.log(data, role);
   if (role === "doctor") {
@@ -36,7 +35,6 @@ exports.push_data = async (data, role) => {
     }
   }
 };
-
 exports.remove_data = async (role, data) => {
   if (role === "doctor") {
     const remove_data = await client.sRem(
@@ -61,7 +59,6 @@ exports.remove_data = async (role, data) => {
     }
   }
 };
-
 exports.parse_data = (data) => {
   if (data) {
     const tobject = data.map((data) => JSON.parse(data));
@@ -73,7 +70,6 @@ exports.parse_data = (data) => {
     return false;
   }
 };
-
 exports.check_existing_doc = (data, id) => {
   if (data) {
     return data.some((existingid) => {
@@ -81,7 +77,6 @@ exports.check_existing_doc = (data, id) => {
     });
   }
 };
-
 exports.fetchToDelete = (list, id) => {
   if (list) {
     return list.find((list) => {
