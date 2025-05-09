@@ -43,11 +43,6 @@ router.post(
   BookAppointmentManually
 );
 router.get("/doctorDetail/:id", authentication, getDoctorDetails);
-router.get(
-  "/fetchsidebarcontent",
-  authentication,
-  cacheMiddlWare,
-  fetchSidebarContent
-);
+router.get("/fetchsidebarcontent", fetchSidebarContent);
 router.get("/nearest", authentication, cacheMiddlWare, find_the_nearest);
 module.exports = router;

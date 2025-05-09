@@ -4,6 +4,7 @@ const Messages = require("../Models/Message.Model");
 const ApiError = require("../Utils/Apierror.Utils");
 const moment = require("moment");
 const { unique } = require("agenda/dist/job/unique");
+const User = require("../Models/User.Model");
 
 exports.createMessage = async (senderid, receiverid, role, message) => {
   console.log(role);
@@ -117,7 +118,7 @@ exports.get_chatting_pat = async (docid) => {
   }
 };
 exports.get_chatting_doc = async (patid) => {
-  const pipeline = await Doctor.aggregate([
+  const pipeline = await User.aggregate([
     {
       $match: {
         _id: new mongoose.Types.ObjectId(`${patid}`),
@@ -151,10 +152,7 @@ exports.get_chatting_doc = async (patid) => {
           {
             $match: {
               $expr: {
-                $in: [
-                  "$_id",
-                  { $getField: { input: "$$docId", field: "value" } },
-                ],
+                $in: ["$_id", "$$docId"],
               },
             },
           },
@@ -180,12 +178,11 @@ exports.get_chatting_doc = async (patid) => {
     },
     {
       $project: {
-        _id: 0,
         uniqueIds: 0,
       },
     },
   ]);
-
+  console.log(`pipeline-----------------<${pipeline}>---------------`,pipeline,patid);
   if (pipeline) {
     return pipeline;
   } else {

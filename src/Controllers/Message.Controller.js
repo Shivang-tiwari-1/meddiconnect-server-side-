@@ -51,14 +51,13 @@ exports.doctor_chat = asyncHandler(async (req, res) => {
     throw new ApiError(500, "logic failed to fetch the messages");
   }
 });
-
 exports.patients_texted_to_doc = asyncHandler(async (req, res) => {
-  console.log("congrat reached here ")
+  console.log("congrat reached here ");
   const { redisKey } = req.query;
   if (!redisKey) {
     throw new ApiError(404, "bad request (redis key not found)");
   }
- 
+
   const fetching = await fetch_pat_text_to_doc(req.doctor.id, redisKey);
   if (fetching) {
     return res.status(200).json(new ApiResponse(200, fetching, "data fetched"));
@@ -68,18 +67,19 @@ exports.patients_texted_to_doc = asyncHandler(async (req, res) => {
 });
 exports.doctors_texted_to_pat = asyncHandler(async (req, res) => {
   const { redisKey } = req.query;
-  console.log("-----------<>", req.query);
-
   if (!redisKey) {
     throw new ApiError(404, "bad request (redis key not found)");
   }
 
   const fetching = await fetch_doc_text_to_doc(req.user.id, redisKey);
-  if (fetching) {
-    console.log("---------------------->", fetching);
-
+  if (fetching.length === 0) {
+    return res.status(200).json(new ApiResponse(200, null, "Empty"));
+  } else if (fetching.length > 0) {
     return res.status(200).json(new ApiResponse(200, fetching, "data fetched"));
   } else {
     throw new ApiError(500, "function failed to produce the expected result ");
   }
+});
+exports.bulk_write_to_db = asyncHandler(async (req, res) => {
+  console.log("bulkwirte---->", req.body, req.user);
 });

@@ -137,8 +137,10 @@ exports.find_By_Id_and_update_patient_status = async (
     return update;
   }
 };
-exports.fetch_Doc_By_Role = async () => {
-  const doctors = await Doctor.find({ role: "doctor" });
+exports.fetch_Doc_By_Role = async (page) => {
+  const limit = 10;
+  const skip = (page - 1) * limit;
+  const doctors = await Doctor.find({ role: "doctor" }).skip(skip).limit(limit);
   if (doctors) {
     return doctors;
   }
@@ -146,44 +148,69 @@ exports.fetch_Doc_By_Role = async () => {
 exports.data_fetch = async () => {
   const data_fetch = await Doctor.aggregate([
     {
+      $match: {
+        specialization: { $exists: true, $ne: [], $not: { $size: 0 } },
+        qualification: { $exists: true, $not: { $size: 0 } },
+        availability: { $exists: true, $not: { $size: 0 } },
+
+      },
+    },
+    {
+      $unwind: "$specialization",
+    },
+    {
+      $group: {
+        _id: "$specialization",
+        doctorsInSpec: { $addToSet: "$name" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        specialization: "$_id",
+        count: { $size: "$doctorsInSpec" },
+      },
+    },
+    {
       $group: {
         _id: null,
-        specialization: {
-          $push: "$specialization",
-        },
-        address: {
-          $push: "$address",
-        },
-        doctors: {
-          $push: "$name",
+        specializationCounts: {
+          $push: { field: "$specialization", count: "$count" },
         },
       },
     },
     {
-      $project: {
-        _id: 0,
-        address: 1,
-        doctors: 1,
-        specializations: {
-          $reduce: {
-            input: "$specialization",
-            initialValue: [],
-            in: { $concatArrays: ["$$value", "$$this"] },
+      $lookup: {
+        from: "doctors",
+        pipeline: [
+          {
+            $match: {
+              address: { $exists: true, $ne: null },
+              qualification: { $exists: true, $not: { $size: 0 } }, 
+              availability: { $exists: true, $not: { $size: 0 } },
+            },
           },
-        },
+          {
+            $group: {
+              _id: null,
+              addresses: { $push: "$address" },
+              doctors: { $push: "$name" },
+            },
+          },
+        ],
+        as: "meta",
       },
+    },
+    {
+      $unwind: "$meta",
     },
     {
       $project: {
         _id: 0,
-        address: 1,
-        doctors: 1,
-        specializedIn: { $setUnion: ["$specializations"] },
-      },
-    },
-    {
-      $addFields: {
-        totalDoctors: { $size: "$doctors" },
+        address: "$meta.addresses",
+        doctors: "$meta.doctors",
+        totalDoctors: { $size: "$meta.doctors" },
+        specialization: "$specializationCounts",
       },
     },
   ]);

@@ -9,6 +9,8 @@ exports.sending_data = (data, objective) => {
     switch (channel) {
       case "patient_information_channel":
         if (objective === "online_Status") {
+          console.log("here inside online");
+          console.log(Data);
           data?.io
             .to("patient_information")
             .emit("patient_Information", { Data, objective });
@@ -34,7 +36,6 @@ exports.sending_data = (data, objective) => {
         break;
 
       case "doctor_information_channel":
-      
         break;
     }
   });

@@ -100,6 +100,7 @@ exports.verifyAuthority = async (req, docId, day) => {
         console.log("|");
         //10
         return {
+          success:true,
           findDoctor: findDoctor,
           currentNumber: existence_of_day?.laterNumber?.number,
         };

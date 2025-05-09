@@ -43,8 +43,8 @@ exports.get_User_data_logic = async (id) => {
     return false;
   }
 };
-exports.fetch_All_Doctor_logic = async () => {
-  const doctors = await fetch_Doc_By_Role();
+exports.fetch_All_Doctor_logic = async (page) => {
+  const doctors = await fetch_Doc_By_Role(page);
   if (doctors) {
     console.log("test1-passed");
   } else {
@@ -61,7 +61,7 @@ exports.fetch_All_Doctor_logic = async () => {
   }
 };
 exports.book_appointment_logic = async (req) => {
-  const io = getSocketIo();
+
 
   let appointment_Exists = [];
 
@@ -107,6 +107,7 @@ exports.book_appointment_logic = async (req) => {
       appointment_Exists.push(patientStatus);
     }
   }
+
   if (appointment_Exists.length > 0) {
     console.log("test5-failed");
     return false;
@@ -484,20 +485,8 @@ exports.get_Doctor_Details_logic = async (pat_id, doc_id) => {
     return false;
   }
 };
-exports.data_logic = async (id) => {
-  console.log("here is ----->?", id);
-  if (!id && !mongoose.ObjectId.isValid(id))
-    return { error: "Invalid User ID" };
-
-  const find_doctor = await findPatientId(id);
-  if (find_doctor) {
-    console.log("test1->passed");
-  } else {
-    console.log("test1->failed");
-    return false;
-  }
+exports.data_logic = async () => {
   const fetch_data = await data_fetch();
-  console.log(fetch_data);
   if (fetch_data) {
     console.log("test2->passed");
     return fetch_data;

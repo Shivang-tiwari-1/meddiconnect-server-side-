@@ -3,6 +3,7 @@ const {
   doctor_chat,
   patients_texted_to_doc,
   doctors_texted_to_pat,
+  bulk_write_to_db,
 } = require("../Controllers/Message.Controller");
 const { authentication } = require("../Middleware/auth.Middleware");
 const { cacheMiddlWare } = require("../Middleware/Caching.Middleware");
@@ -23,5 +24,6 @@ router.get(
   cacheMiddlWare,
   doctors_texted_to_pat
 );
+router.post("/database_write", authentication, bulk_write_to_db);
 
 module.exports = router;

@@ -130,7 +130,7 @@ exports.setuser_is_active_data = asyncHandler(async (userid, role) => {
       if (filterdata === undefined) {
         throw new ApiError("could not find  the document");
       }
-    
+
       const remove_prev_data = await remove_data(filterdata?.role, filterdata);
       if (!remove_prev_data) {
         throw new ApiError(500, "could not remove the prev data ");

@@ -17,7 +17,7 @@ const {
 } = require("../Services/patinet.Service");
 const { setCahe } = require("../Middleware/Caching.Middleware");
 
-/**************************functions****************************/
+//**************************functions****************************/
 //getUserData
 //fetchAllDoctor
 //BookAppointment
@@ -26,7 +26,7 @@ const { setCahe } = require("../Middleware/Caching.Middleware");
 //History
 //getDoctorDetails
 //nearestDoctor
-/**************************functions****************************/
+//**************************functions****************************/
 exports.getuserData = asyncHandler(async (req, res) => {
   const getting_User_data = await get_User_data_logic(req.user?.id);
   setCahe(req.query.redisKey, getting_User_data, req.user.id);
@@ -44,17 +44,15 @@ exports.fetchAllDoctors = asyncHandler(async (req, res, next) => {
   //2.filter the details
   //3.set the cache for the redis middleware to catch it
   //************************************ALGO***************************************/
-  const fetching_Doctors = await fetch_All_Doctor_logic();
-  console.log(fetching_Doctors);
-  if (fetching_Doctors) {
-    setCahe(req.query.redisKey, fetching_Doctors, req.user.id);
+  const fetching_Doctors = await fetch_All_Doctor_logic(
+    parseInt(req.query.page) || 1
+  );
+  if (fetching_Doctors.length > 0) {
     return res.json(
       new ApiResponse(200, fetching_Doctors, " doctors near you")
     );
   } else {
-    return res
-      .status(500)
-      .json({ error: "no data received from the filterdetails" });
+    return res.json(new ApiResponse(200, [], "no doctors"));
   }
 });
 exports.BookAppointment = asyncHandler(async (req, res) => {
@@ -248,11 +246,9 @@ exports.getDoctorDetails = asyncHandler(async (req, res) => {
   }
 });
 exports.fetchSidebarContent = asyncHandler(async (req, res) => {
-  
-  const fetching_data = await data_logic(req.user?.id);
+
+  const fetching_data = await data_logic();
   if (fetching_data) {
-    console.log(req.query.redisKey);
-    setCahe(req.query.redisKey, fetching_data, req.user.id);
     return res
       .status(200)
       .json(new ApiResponse(200, fetching_data, "data has been fteched"));

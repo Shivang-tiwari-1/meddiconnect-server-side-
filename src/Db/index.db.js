@@ -5,7 +5,7 @@ const ApiError = require("../Utils/Apierror.Utils");
 exports.connectToMongo = async () => {
   try {
     const connectionInstance = await mongoose.connect(
-      `${process.env.MONGO_URI}/${DB_NAME}`
+      `mongodb://localhost:27017/${DB_NAME}`
     );
     console.log(
       "\n Mongoose connected !! DB host: ",

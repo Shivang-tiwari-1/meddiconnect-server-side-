@@ -83,7 +83,7 @@ exports.fetchmessageDoctors_logic = async (docid, redisKey, patid) => {
   }
 };
 exports.fetch_pat_text_to_doc = async (docid, query) => {
-  console.log("rwached services ")
+  console.log("rwached services ");
   if (typeof !docid && !query) {
     throw new ApiError(404, "rediskey & dcoid required");
   }
@@ -91,16 +91,15 @@ exports.fetch_pat_text_to_doc = async (docid, query) => {
   const get_the_pat = await get_chatting_pat(docid);
   if (get_the_pat) {
     console.log("test1->passed", get_the_pat);
-      console.log("--------------->", get_the_pat);
+    console.log("--------------->", get_the_pat);
     setCahe(query, get_the_pat, docid);
-    
+
     return get_the_pat;
   } else {
     console.log("test1->failed");
     throw new ApiError(500, "failed to get the chatting patients");
   }
 };
-
 exports.fetch_doc_text_to_doc = async (patid, redisKey) => {
   const get_the_doc = await get_chatting_doc(String(patid));
   if (get_the_doc) {
@@ -112,3 +111,4 @@ exports.fetch_doc_text_to_doc = async (patid, redisKey) => {
     throw new ApiError(500, "failed to get the chatting patients");
   }
 };
+exports.bulk_write_llogc = async () => {};

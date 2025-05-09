@@ -30,7 +30,6 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
   pub_sub_channle_Export();
 
   const numCPUs = require("os").availableParallelism();
-  console.log(os.arch());
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
