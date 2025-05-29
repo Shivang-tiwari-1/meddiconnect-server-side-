@@ -30,13 +30,17 @@ async function processMissedJobs() {
     new mongoose.Schema({}),
     "agendaJobs"
   );
+
+  //1
   const missedJobs = await AgendaJob.find({
     name: "remove expired availability",
   }).lean();
 
+  //2
   const collect_executed_jobs = missedJobs.filter(
-    (job) => job.lastRunAt != null
+    (job) => job.lastRunAt !== null
   );
+
   if (collect_executed_jobs.length > 0 && collect_executed_jobs) {
     let collect_date = [];
     let store_appointments = [];
@@ -45,27 +49,52 @@ async function processMissedJobs() {
       const dateObj = new Date(collectDate?.lastRunAt);
       const date = moment(dateObj).format("MM-DD-YYYY");
       const day = moment(dateObj).format("dddd").toLowerCase();
-   
-        collect_date.push({
-          day: day,
-          date: date,
-        });
-      
+
+      collect_date.push({
+        day: day,
+        date: date,
+      });
     });
 
     for (let i = 0; i <= collect_executed_jobs.length - 1; i++) {
       const doctorID = collect_executed_jobs[i].data.doctorId;
+      const availabilityObjectid = collect_executed_jobs[i].data.objectId;
       const date = collect_date[i].date;
-      if (doctorID) {
+      if (doctorID && availabilityObjectid) {
         const find_appointment = await Appontment.find({
           doctor: doctorID,
           "laterPatient.date": date,
         });
-        find_appointment?.length > 0 &&
+
+        if (find_appointment?.length > 0) {
           store_appointments.push(find_appointment[0]);
+        } else {
+          const objects = await Doctor.findOne({
+            "availability._id": availabilityObjectid,
+          });
+
+          if (objects && typeof objects === "object") {
+            const { availability } = objects;
+
+            const folder = availability.find(
+              (data) => data?.laterNumber?.number > 0
+            );
+            if (folder !== undefined) {
+              for (const data of availability) {
+                if (data?.day === folder?.day) {
+                  data.laterNumber.number = 0;
+                }
+              }
+              objects.availability = availability;
+              await objects.save();
+            }
+          } else {
+            console.error("`objects` is not a valid object:", objects);
+          }
+        }
       }
     }
-
+    //in case appointment exists rest of the details can be tracked and data can be cleared
     if (store_appointments.length > 0) {
       for (let i = 0; i <= store_appointments.length - 1; i++) {
         const find_doctor = await Doctor.findById(store_appointments[i].doctor);
@@ -160,6 +189,7 @@ async function processMissedJobs() {
       console.log("no previous appointments to delete");
     }
   }
+  return true;
   console.log(
     "-------------------ending-agenda-logic--------------------------"
   );

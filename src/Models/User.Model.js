@@ -52,6 +52,20 @@ const userSchema = new mongoose.Schema(
         date: {
           type: String,
           require: true,
+          default: "",
+        },
+        time: {
+          type: String,
+          default: "",
+        },
+        day: {
+          type: String,
+          default: "",
+        },
+        visited: {
+          type: String,
+          enum: ["fulfilled", "finished", "pending", "missed"],
+          default: "pending",
         },
       },
     ],

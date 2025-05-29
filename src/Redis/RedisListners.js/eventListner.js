@@ -8,9 +8,7 @@ exports.sending_data = (data, objective) => {
   sub.once("message", async (channel, Data) => {
     switch (channel) {
       case "patient_information_channel":
-        if (objective === "online_Status") {
-          console.log("here inside online");
-          console.log(Data);
+        if (objective === "online_Status") {       
           data?.io
             .to("patient_information")
             .emit("patient_Information", { Data, objective });

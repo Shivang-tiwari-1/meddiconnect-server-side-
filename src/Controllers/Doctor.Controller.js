@@ -102,8 +102,7 @@ exports.getDetailOfthePatient = asyncHandler(async (req, res) => {
     console.log("test1->passed");
     let collected_patients = [];
     const collect_Patient_id = [];
-    let snatizedata;
-
+  
     pipeline.forEach((index) => {
       const patientId = index.patient.toString();
       if (

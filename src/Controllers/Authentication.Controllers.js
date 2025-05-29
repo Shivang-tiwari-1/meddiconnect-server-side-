@@ -264,38 +264,50 @@ exports.updateUsre = asyncHandler(async (req, res) => {
   return message(req, res, 200, new ApiResponse(200, user, "user updated"));
 });
 exports.refreshAccessToken = asyncHandler(async (req, res) => {
-  const refreshtoken = await req.cookies?.refreshToken;
-
-  if (!refreshtoken) {
+  const refreshAccesstoken = await req.cookies?.refreshToken;
+  if (!refreshAccesstoken) {
     return message(req, res, 500, "could not retrieve the token");
-  } else {
-    const decode = jwt.verify(refreshtoken, process.env.REFRESH_TOKEN_SECRET);
-    if (!decode) {
-      return message(req, res, 500, { error: "could not decode" });
-    }
-    const data =
-      decode?.role === "doctor"
-        ? await Doctor?.findById(decode?.id)
-        : await User?.findById(decode?.id);
-    if (!data) {
-      return message(req, res, 403, { error: "could not find the user" });
-    }
-    const { accessToken, refreshToken } = await GenerateTokens(data);
-    if (!accessToken && !refreshToken) {
-      return message(req, res, 500, { error: "could not retrive the token" });
-    }
-    const filterd = filterdetail(data);
-    if (!filterd) {
-      return message(req, res, 500, { error: "could not filter the data" });
-    }
-    const tokens = {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    };
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
-      .json(new ApiResponse(200, tokens, "user logged in"));
   }
+  console.log(refreshAccesstoken);
+  const decode = jwt.verify(
+    refreshAccesstoken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+  if (!decode) {
+    return message(req, res, 500, { error: "could not decode" });
+  }
+
+  const data =
+    decode?.role === "doctor"
+      ? await Doctor?.findById(decode?.id)
+      : await User?.findById(decode?.id);
+  if (!data) {
+    return message(req, res, 403, { error: "could not find the user" });
+  } else if (data.refreshToken !== refreshAccesstoken) {
+    return message(req, res, 403, { error: "suspicious attempt" });
+  }
+
+  const { accessToken, refreshToken } = await GenerateTokens(data);
+  if (!accessToken && !refreshToken) {
+    return message(req, res, 500, { error: "could not retrive the token" });
+  }
+
+  const filterd = filterdetail(data);
+  if (!filterd) {
+    return message(req, res, 500, { error: "could not filter the data" });
+  }
+
+  const tokens = {
+    data: data,
+    accessToken: accessToken,
+    refreshToken: refreshToken,
+  };
+
+
+  console.log(tokens);
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(new ApiResponse(200, tokens, "user logged in"));
 });

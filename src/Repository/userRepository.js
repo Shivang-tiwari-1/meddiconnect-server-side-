@@ -116,7 +116,8 @@ exports.find_By_Id_and_update_patient_status = async (
   currentDay,
   date
 ) => {
-  const update = await User.findByIdAndUpdate(
+  console.log(id, patientNumber, Time, currentDay, date);
+const update = await User.findByIdAndUpdate(
     id,
     {
       $push: {
@@ -126,7 +127,7 @@ exports.find_By_Id_and_update_patient_status = async (
             patientnumber: patientNumber,
             time: Time,
             day: currentDay,
-            date: date?.date,
+            date: date,
           },
         },
       },
@@ -152,7 +153,6 @@ exports.data_fetch = async () => {
         specialization: { $exists: true, $ne: [], $not: { $size: 0 } },
         qualification: { $exists: true, $not: { $size: 0 } },
         availability: { $exists: true, $not: { $size: 0 } },
-
       },
     },
     {
@@ -186,7 +186,7 @@ exports.data_fetch = async () => {
           {
             $match: {
               address: { $exists: true, $ne: null },
-              qualification: { $exists: true, $not: { $size: 0 } }, 
+              qualification: { $exists: true, $not: { $size: 0 } },
               availability: { $exists: true, $not: { $size: 0 } },
             },
           },

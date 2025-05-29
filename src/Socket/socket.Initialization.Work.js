@@ -195,7 +195,6 @@ module.exports = (socket, io) => {
           socket.join("patient_information");
           const online_doctors = await fetch_all_data({ role: "doctor" });
           const ratings = await client.hGet(`user:${data?.id}`, `ratings`);
-          console.log("----------->", [online_doctors, JSON.parse(ratings)]);
           if (online_doctors) {
             const publishing_data =
               await publish_to_patient_information_channel(
@@ -270,6 +269,7 @@ module.exports = (socket, io) => {
               } else {
                 if (parse && parse?.online) {
                   const newPayload = await fetch_all_data({ role: data.role });
+
                   if (!newPayload) {
                     throw new ApiError(
                       500,
@@ -279,7 +279,7 @@ module.exports = (socket, io) => {
 
                   const publish_data_to_patient =
                     await publish_to_patient_information_channel(
-                      newPayload,
+                      [newPayload, []],
                       pub
                     );
                   if (!publish_data_to_patient) {
@@ -484,25 +484,7 @@ module.exports = (socket, io) => {
       //10.push the same message for the reviver in to sorted list with a tag
 
       try {
-        if (
-          typeof sender === "object" &&
-          typeof socketid === "string" &&
-          typeof message === "string" &&
-          typeof receiver === "object" &&
-          sender &&
-          socketid &&
-          message &&
-          receiver
-        ) {
-          console.log("test1->passed");
-        } else {
-          console.log("test1->failed");
-          throw new ApiError(
-            500,
-            `${receiverid},${socketid},${message} is missing`
-          );
-        }
-        //2
+        //1
         const find_sender = await lookup_in_all_collections(sender?.sender);
         if (find_sender) {
           console.log("test2->success");
@@ -510,7 +492,8 @@ module.exports = (socket, io) => {
           console.log("test2->failed");
           throw new ApiError(500, "function failed to produce any result");
         }
-        //3
+
+        //2
         const sender_isActiveDoctors = socketCollection.get(
           find_sender?._id.toString()
         );
@@ -520,7 +503,8 @@ module.exports = (socket, io) => {
           console.log("test3->failed");
           throw new ApiError(500, "sender is not active ");
         }
-        //4
+
+        //3
         const receiver_isActiveDoctors = socketCollection.get(
           receiver?.receiver
         );
@@ -529,7 +513,8 @@ module.exports = (socket, io) => {
         } else {
           console.log("test5->failed");
         }
-        //5
+
+        //4
         const find_receiver = await lookup_in_all_collections(
           receiver?.receiver
         );
@@ -539,7 +524,8 @@ module.exports = (socket, io) => {
           console.log("test6->failed");
           throw new ApiError(500, "function failed to produce any result");
         }
-        //6
+
+        //5
         const save_to_db = await createMessage(
           find_sender?._id,
           find_receiver?._id,
@@ -552,7 +538,8 @@ module.exports = (socket, io) => {
           console.log("test7->failed");
           throw new ApiError(500, "function failed to create the message");
         }
-        //7
+
+        //6
         pub.publish("chatbox", message, (err) => {
           if (err) {
             throw new ApiError(404, `could not publish the message:${err}`);
@@ -560,7 +547,8 @@ module.exports = (socket, io) => {
             console.log("**********message-published-to-(chatbox)***********");
           }
         });
-        //8
+
+        //7
         const deliver_mesage = sending_data(
           {
             io: io,
@@ -577,7 +565,8 @@ module.exports = (socket, io) => {
           console.log("test8->failed");
           throw new ApiError(404, "data is pushed in the redis-list");
         }
-        //9
+
+        //8
         const time = new Date().getTime();
         const forSender = await redis.zadd(
           `from:${find_sender?._id}:to${find_receiver?._id}`,
@@ -593,7 +582,8 @@ module.exports = (socket, io) => {
           console.log("test9->failed");
           throw new ApiError(404, "message was not pushed in the sorted list");
         }
-        //10
+
+        //9
         const forReciver = await redis.zadd(
           `from:${find_receiver?._id}:to${find_sender?._id}`,
           time,
@@ -611,7 +601,7 @@ module.exports = (socket, io) => {
         ack({ status: "ok" });
         console.log("--------|||||sending-message-ends|||||-------");
       } catch (error) {
-        console.error(err);
+        console.error(error);
         ack({ status: "error", error: err.message || "Internal error" });
       }
     }
@@ -640,18 +630,26 @@ module.exports = (socket, io) => {
         throw new ApiError(500, "could nto find the user in socketcollection");
       }
 
-      const redis_messages = await redis.zrevrange(
+      const redis_messages = await redis.zrange(
         `from:${sender._id}:to${receiver._id}`,
         0,
-        9
+        -1,
+        "WITHSCORES"
       );
-      console.log(JSON.stringify(redis_messages));
-      const to_string = JSON.stringify(redis_messages);
 
-      if (redis_messages.length !== 0) {
+      const messages = [];
+
+      for (let i = 0; i < redis_messages.length; i += 2) {
+        messages.push({
+          message: redis_messages[i],
+          timestamp: Number(redis_messages[i + 1]),
+        });
+      }
+
+      if (redis_messages.length !== 0 || messages.length !== 0) {
         pub.publish(
           "patient_information_channel",
-          JSON.stringify(redis_messages),
+          JSON.stringify(messages),
           (err) => {
             if (err) {
               throw new ApiError(404, `could not publish the message:${err}`);
@@ -784,7 +782,7 @@ module.exports = (socket, io) => {
           }
 
           const publish_data_to_patient =
-            await publish_to_patient_information_channel(newPayload, pub);
+            await publish_to_patient_information_channel([newPayload, []], pub);
           if (!publish_data_to_patient) {
             throw new ApiError(404, "data could not be published");
           }
@@ -884,5 +882,8 @@ module.exports = (socket, io) => {
     //     }
     //   }
     // }
+  });
+  socket.on("reconnect_attempt", async () => {
+    console.log("attempting to re-connect");
   });
 };

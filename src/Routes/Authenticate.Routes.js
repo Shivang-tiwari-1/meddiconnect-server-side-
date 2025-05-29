@@ -78,7 +78,7 @@ router.post(
   ],
   loginUser
 );
-router.get("/refreshtoken", refreshAccessToken);
+router.post("/refreshtoken", refreshAccessToken);
 router.post("/logout", authentication, logout);
 router.post("/forgotpass", authentication, forgotPass);
 module.exports = router;

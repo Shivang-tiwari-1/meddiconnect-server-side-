@@ -13,7 +13,7 @@ exports.authentication = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   let tokenFromHeader = authHeader?.startsWith("Bearer ")
     ? authHeader.split(" ")[1]
-    : null;
+    : req.cookies.accessToken;
   if (tokenFromHeader !== null) {
     console.log("test1-token-passed");
   } else {

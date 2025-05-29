@@ -97,23 +97,22 @@ exports.book_appointment_logic = async (req) => {
     return false;
   }
 
-  for (let i = 0; i < find_Patient?.appointmentStatus?.length; i++) {
-    let patientStatus = find_Patient?.appointmentStatus[i]?.patient?.find(
-      (status) => {
-        return status.day === currentDay;
-      }
-    );
-    if (patientStatus) {
-      appointment_Exists.push(patientStatus);
-    }
-  }
-
-  if (appointment_Exists.length > 0) {
-    console.log("test5-failed");
-    return false;
-  } else {
-    console.log("test5-passed");
-  }
+  // for (let i = 0; i < find_Patient?.appointmentStatus?.length; i++) {
+  //   let patientStatus = find_Patient?.appointmentStatus[i]?.patient?.find(
+  //     (status) => {
+  //       return status.day === currentDay;
+  //     }
+  //   );
+  //   if (patientStatus) {
+  //     appointment_Exists.push(patientStatus);
+  //   }
+  // }
+  // if (appointment_Exists.length > 0) {
+  //   console.log("test5-failed");
+  //   return false;
+  // } else {
+  //   console.log("test5-passed");
+  // }
 
   const Time = date?.targetDateTime.slice(15);
   if (typeof Time === "string") {
@@ -208,7 +207,7 @@ exports.book_appointment_logic = async (req) => {
   ];
   const send_Notifi_to_doc_pati = await insert_many(notification);
   if (send_Notifi_to_doc_pati) {
-    console.log("test11->passed");
+    console.log("test 11->passed");
     return true;
   } else {
     console.log("test11->failed");
