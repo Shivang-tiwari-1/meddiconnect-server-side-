@@ -94,9 +94,9 @@ exports.client = redis.createClient({
   url: process.env.REDIS_PORT,
 });
 
-exports.pub = new Redis("rediss://default:AY2LAAIjcDEzZGFlOGJhOGNiMjQ0MzdmYjk4NDExY2M4YWQ3YTkzZnAxMA@moved-ghost-36235.upstash.io:6379");
+exports.pub = new Redis( process.env.REDIS_PORT);
 
-exports.sub = new Redis("rediss://default:AY2LAAIjcDEzZGFlOGJhOGNiMjQ0MzdmYjk4NDExY2M4YWQ3YTkzZnAxMA@moved-ghost-36235.upstash.io:6379");
+exports.sub = new Redis( process.env.REDIS_PORT);
 
 exports.redis = new Redis();
 
