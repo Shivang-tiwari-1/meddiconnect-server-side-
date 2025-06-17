@@ -68,8 +68,14 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
   });
 } else {
 
-  server.listen(() => {
-    
+  server.listen(async() => {
+       const mongoUrl = process.env.MONGO_URL;
+    if (!mongoUrl) {
+      console.error("❌ MONGO_URL is not defined. Exiting.");
+      process.exit(1); // Immediately stop the app
+    }
+
+    console.log("⛳ Mongo URI being used:", mongoUrl);
         await initialize(); 
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
   });
