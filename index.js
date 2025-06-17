@@ -2,7 +2,7 @@ require("dotenv").config();
 const cluster = require("cluster");
 const sticky = require("sticky-session");
 const http = require("http");
-const { ioconnection } = require("../backend/src/Db/Socket.Db");
+const { ioconnection } = require("./src/Db/Socket.Db");
 const { connectToMongo } = require("./src/Db/index.db");
 const { connect_to_redis } = require("./src/Db/Redis.cache.db");
 const app = require("./src/App");
