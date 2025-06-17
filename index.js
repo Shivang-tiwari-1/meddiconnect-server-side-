@@ -44,9 +44,6 @@ try {
 }
 
 
-(async () => {
-  await initialize(); 
-})();
 
 if (!sticky.listen(server, process.env.PORT || 8000)) {
   console.log("Master process PID:", process.pid);
@@ -66,6 +63,9 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
   server.listen(() => {
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
   });
+(async () => {
+  await initialize(); 
+})();
 
   process.on("uncaughtException", (err) => {
     console.error("Worker died due to uncaught exception:", err);
