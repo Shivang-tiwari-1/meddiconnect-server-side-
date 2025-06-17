@@ -16,15 +16,25 @@ const { agenda } = require("./src/ScheduleTasks/agend.ScheduleTasks");
 setSocket(server);
 
 async function initialize() {
+  console.log("🔄 Starting initialization...");
+
   try {
     await connectToMongo();
+    console.log("✅ Mongo connected");
+
     await connect_to_redis();
+    console.log("✅ Redis connected");
+
     await agenda.start();
-    console.log("Databases connected successfully");
+    console.log("✅ Agenda started");
+
+    console.log("🚀 Initialization complete");
   } catch (error) {
-    console.error("Error during initialization:", error);
+    console.error("❌ Error during initialization:", error);
+    process.exit(1); 
   }
 }
+
 
 ioconnection();
 
