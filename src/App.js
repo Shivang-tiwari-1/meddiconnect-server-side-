@@ -37,6 +37,9 @@ app.use(express.urlencoded({ extended: true, limit: "32mb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 app.use(cors(corsOptions));
+app.use("/home", (req, res) => {
+  res.json({ message: "hello" });
+});
 
 app.use("/api/patient", PatientRoute);
 app.use("/api/doctor", DoctorRoute);
