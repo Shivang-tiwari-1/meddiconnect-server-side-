@@ -4,21 +4,25 @@ const ApiError = require("../Utils/Apierror.Utils");
 
 exports.connectToMongo = async () => {
   try {
-     if (!mongoUrl) {
     const mongoUrl = process.env.MONGO_URL;
 
-  if (!mongoUrl) {
-    console.error("❌ MONGO_URL is not defined. Exiting.");
-    process.exit(1); // Immediately stop the app
-  }
-      console.log("⛳ Mongo URI being used:", process.env.MONGO_URL);
-    const connectionInstance = await mongoose.connect(mongoUrl);
+    if (!mongoUrl) {
+      console.error("❌ MONGO_URL is not defined. Exiting.");
+      process.exit(1); // Immediately stop the app
+    }
+
+    console.log("⛳ Mongo URI being used:", mongoUrl);
+
+    const connectionInstance = await mongoose.connect(mongoUrl, {
+      dbName: DB_NAME, // Optional: adds DB selection
+    });
+
     console.log(
-      "\n Mongoose connected !! DB host: ",
+      "\n✅ Mongoose connected! DB host:",
       connectionInstance.connection.host
     );
   } catch (error) {
-    console.log("|||||||||||||||||||||||||||||||||||||||||||||||")
-    throw new ApiError(500, `could not connect ${error}`);
+    console.log("|||||||||||||||||||||||||||||||||||||||||||||||");
+    throw new ApiError(500, `Could not connect to MongoDB: ${error.message}`);
   }
 };
