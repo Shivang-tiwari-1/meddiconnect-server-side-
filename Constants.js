@@ -74,7 +74,7 @@ exports.setSocket = (server) => {
   console.log("setting->socket");
   io = socketIO(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.SOCKET_ORIGIN,
       credentials: true,
     },
     pingInterval: 25000,
