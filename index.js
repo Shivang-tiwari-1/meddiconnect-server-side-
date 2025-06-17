@@ -67,12 +67,10 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
     cluster.fork();
   });
 } else {
-  // ⚙️ WORKER PROCESS
-  (async () => {
-    await initialize(); // ✅ Connect Mongo, Redis, Agenda ONLY in worker
-  })();
 
   server.listen(() => {
+    
+        await initialize(); 
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
   });
 
