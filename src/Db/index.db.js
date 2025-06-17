@@ -13,9 +13,7 @@ exports.connectToMongo = async () => {
 
     console.log("⛳ Mongo URI being used:", mongoUrl);
 
-    const connectionInstance = await mongoose.connect(mongoUrl, {
-      dbName: DB_NAME, // Optional: adds DB selection
-    });
+    const connectionInstance = await mongoose.connect(mongoUrl);
 
     console.log(
       "\n✅ Mongoose connected! DB host:",
