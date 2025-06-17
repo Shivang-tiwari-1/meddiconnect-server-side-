@@ -28,6 +28,10 @@ async function initialize() {
 
 ioconnection();
 
+(async () => {
+  await initialize(); 
+})();
+
 if (!sticky.listen(server, process.env.PORT || 8000)) {
   console.log("Master process PID:", process.pid);
 
@@ -43,10 +47,7 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
     cluster.fork();
   });
 } else {
-  const { signals } = require("os").constants;
-
-  server.listen(async () => {
-    await initialize();
+  server.listen(() => {
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
   });
 
@@ -56,7 +57,7 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
   });
 
   process.on("SIGINT", () => {
-    console.log(`Received ${signals.SIGINT}, exiting gracefully...`);
+    console.log(`Received SIGINT, exiting gracefully...`);
     process.exit(0);
   });
 }
