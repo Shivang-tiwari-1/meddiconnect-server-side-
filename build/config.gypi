@@ -419,9 +419,10 @@
     "globalconfig": "C:\\Users\\itach\\AppData\\Roaming\\npm\\etc\\npmrc",
     "global_prefix": "C:\\Users\\itach\\AppData\\Roaming\\npm",
     "init_module": "C:\\Users\\itach\\.npm-init.js",
-    "local_prefix": "C:\\Users\\itach\\OneDrive\\Desktop\\web-projects\\mediconnect - Copy\\backend",
+    "local_prefix": "c:\\Users\\itach\\OneDrive\\Desktop\\web-projects\\mediconnect - Copy\\backend",
     "node_gyp": "C:\\Users\\itach\\AppData\\Roaming\\npm\\node_modules\\npm\\node_modules\\node-gyp\\bin\\node-gyp.js",
     "npm_version": "10.7.0",
+    "package_lock_only": "true",
     "prefix": "C:\\Users\\itach\\AppData\\Roaming\\npm",
     "userconfig": "C:\\Users\\itach\\.npmrc",
     "user_agent": "npm/10.7.0 node/v21.1.0 win32 x64 workspaces/false"

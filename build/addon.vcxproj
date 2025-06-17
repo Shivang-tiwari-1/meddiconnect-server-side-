@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C9C68028-C508-AF2C-C8A8-55517CE30355}</ProjectGuid>
+    <ProjectGuid>{B2CE8F77-CDF3-AADD-979F-5DA8645DAAF4}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>addon</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;C:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;c:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -std:c++17 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -84,13 +84,13 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;C:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;c:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=addon;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;C:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;c:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Zc:__cplusplus -std:c++17 %(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
@@ -129,7 +129,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;C:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\include\node;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\src;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\config;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\openssl\openssl\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\uv\include;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\zlib;C:\Users\itach\AppData\Local\node-gyp\Cache\21.1.0\deps\v8\include;c:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-addon-api;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=addon;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;V8_DEPRECATION_WARNINGS;V8_IMMINENT_DEPRECATION_WARNINGS;_GLIBCXX_USE_CXX11_ABI=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;OPENSSL_NO_PINSHARED;OPENSSL_THREADS;NAPI_DISABLE_CPP_EXCEPTIONS;BUILDING_NODE_EXTENSION;HOST_BINARY=&quot;node.exe&quot;;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
@@ -140,11 +140,11 @@
     <ClCompile Include="..\src\Native\addon.cpp">
       <ObjectFileName>$(IntDir)\src\Native\addon.obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="C:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
+    <ClCompile Include="c:\Users\itach\OneDrive\Desktop\web-projects\mediconnect - Copy\backend\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="node_modules\node-addon-api\nothing.vcxproj">
-      <Project>{98DD94D6-4E38-E72E-24E9-B5EE38CD8AB6}</Project>
+      <Project>{E0871578-F8F7-A88D-EF85-2B30B30C61CF}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

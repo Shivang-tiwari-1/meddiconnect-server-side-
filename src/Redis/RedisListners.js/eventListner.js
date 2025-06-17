@@ -8,7 +8,7 @@ exports.sending_data = (data, objective) => {
   sub.once("message", async (channel, Data) => {
     switch (channel) {
       case "patient_information_channel":
-        if (objective === "online_Status") {       
+        if (objective === "online_Status") {
           data?.io
             .to("patient_information")
             .emit("patient_Information", { Data, objective });
@@ -22,7 +22,6 @@ exports.sending_data = (data, objective) => {
             .emit("patient_Information", { Data, objective, role: data.role });
         }
         break;
-
       case "chatbox":
         if (objective === "text_message") {
           data.io.to(data?.reciverSocketid).emit("listen_to_message", {

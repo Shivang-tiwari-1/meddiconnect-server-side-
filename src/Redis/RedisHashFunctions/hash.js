@@ -16,6 +16,19 @@ exports.check_if_exits = async (data) => {
   }
 };
 
+exports.return_the_doc = async (data) => {
+  if (data.role === "patient") {
+    const eistingdata = await client.hGet(`patientActiveStatus`, data.id);
+    return JSON.parse(eistingdata);
+  } else if (data.role === "doctor") {
+    const eistingdata = await client.hExists(
+      `doctorActiveStatus`,
+      `${data.id}`
+    );
+    return JSON.parse(eistingdata);
+  }
+};
+
 exports.push_hash_data = async (data) => {
   if (data.role === "doctor") {
     const fetchData = await client.hSet(

@@ -6,14 +6,14 @@ exports.fetch_data = async (role) => {
     if (existing_data.length < 0) {
       return false;
     } else {
-      return existing_data;
+      return JSON.parse(existing_data);
     }
   } else {
     const existing_data = await client.sMembers(`isActivePatients`);
     if (existing_data.length < 0) {
       return false;
     } else {
-      return existing_data;
+      return JSON.parse(existing_data);
     }
   }
 };
@@ -41,7 +41,7 @@ exports.remove_data = async (role, data) => {
       `isActiveDoctors`,
       JSON.stringify(data)
     );
-   
+
     if (remove_data > 0) {
       return true;
     } else {

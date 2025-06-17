@@ -7,7 +7,6 @@ const { unique } = require("agenda/dist/job/unique");
 const User = require("../Models/User.Model");
 
 exports.createMessage = async (senderid, receiverid, role, message) => {
-  console.log(role);
   const save_to_db = await Messages.create({
     sender: senderid,
     receiver: receiverid,

@@ -5,7 +5,7 @@ const ApiError = require("../Utils/Apierror.Utils");
 exports.connectToMongo = async () => {
   try {
     const connectionInstance = await mongoose.connect(
-      `mongodb://localhost:27017/${DB_NAME}`
+      `mongodb+srv://admin:admin@winhousiecluster0.7ywbdqc.mongodb.net/DoctorManagment?retryWrites=true&w=majority&appName=WinHousieCluster0`
     );
     console.log(
       "\n Mongoose connected !! DB host: ",

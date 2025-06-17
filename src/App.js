@@ -11,7 +11,6 @@ const message = require("./Routes/Message.Route");
 const logger = require("./Utils/Logger");
 const morgan = require("morgan");
 const app = express();
-const cluster = require("cluster");
 
 const morganFormat = `:method :url :status :response-time ms`;
 

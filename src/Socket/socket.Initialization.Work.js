@@ -13,7 +13,6 @@ const ApiError = require("../Utils/Apierror.Utils");
 const { sending_data } = require("../Redis/RedisListners.js/eventListner");
 const {
   fetch_data,
-  parse_data,
   remove_data,
   fetchToDelete,
   push_data,
@@ -26,10 +25,12 @@ const {
   fetch_all_data,
   get_hash_online_data,
   parse_hash,
+  return_the_doc,
 } = require("../Redis/RedisHashFunctions/hash");
 const {
   publish_to_patient_information_channel,
 } = require("../Redis/publishFunction/publish");
+const { fetch_mess_sorted_set } = require("../Redis/SortedSet/SortedSet");
 
 module.exports = (socket, io) => {
   socket.on("connected", async (userdata, socketid, ack) => {
@@ -59,7 +60,7 @@ module.exports = (socket, io) => {
           role: userdata?.role,
         });
       }
-      const datasent = [...socketCollection.values()].find(
+      const datasent = [ ...socketCollection.values() ].find(
         (user) => user.dataSent === false
       );
       sub.unsubscribe(`user:${userdata?._id}`, () => {
@@ -133,7 +134,6 @@ module.exports = (socket, io) => {
       if (!pushData) {
         throw new ApiError(404, "data was nto pushed");
       }
-      console.log(pushData);
       ack({ status: "ok" });
       console.log(
         "||||||||||||||||||||connection-finished||||||||||||||||||||||||"
@@ -144,20 +144,14 @@ module.exports = (socket, io) => {
     }
     console.log("--------|||||connecting-to-socket-starts|||||-------");
   });
-  socket.on("reconnect_to_socket", async (data) => {
-    //1.Fetch the data.
-    //2.Fetch the specific data(from the redis).
-    //3.Remove the data from the redis.
-    //4.Hold the data in variable and change the socket id.
-    //5.And push the new Data.
-    const Data = await fetch_data(data.role);
-    if (data.length > 0) {
-      const toJson = parse_data(Data);
-      if (!toJson) {
-        throw new ApiError(500, "could not  parse the data");
+  socket.on("reconnect_to_socket", async (data, ack) => {
+    try {
+      const Data = await fetch_data(data.role);
+      if (data.length === 0) {
+        throw new ApiError("could not find  the document");
       }
 
-      const filterdata = fetchToDelete(toJson, data.id);
+      const filterdata = fetchToDelete(Data, data.id);
       if (filterdata === undefined) {
         throw new ApiError("could not find  the document");
       }
@@ -165,23 +159,25 @@ module.exports = (socket, io) => {
       const remove = await remove_data(data.role, filterdata);
       if (!remove) {
         throw new ApiError(500, "Data could not be deleted");
-      } else {
-        console.log("test2->passed");
-
-        const change_filterdata = (filterdata.socketid = data?.socketid);
-        if (change_filterdata) {
-          throw new ApiError(500, "could not change the object data to false");
-        }
-
-        const push_changed_data = await push_data(
-          JSON.stringify(filterdata),
-          data.role
-        );
-        if (!push_changed_data) {
-          throw new ApiError(500, "could not push the dat ain to redis set ");
-        }
       }
+
+      const change_filterdata = (filterdata.socketid);
+      if (change_filterdata) {
+        throw new ApiError(500, "could not change the object data to false");
+      }
+
+      const push_changed_data = await push_data(
+        JSON.stringify(filterdata),
+        data.role
+      );
+      if (!push_changed_data) {
+        throw new ApiError(500, "could not push the dat ain to redis set ");
+      }
+    } catch (error) {
+      console.error(error);
+      ack({ status: "error", error: error.message || "Internal error" });
     }
+    ack.ok({ status: "ok" });
   });
   socket.on("join_room", async (data, ack) => {
     //1.according to the room name join the room.
@@ -235,6 +231,7 @@ module.exports = (socket, io) => {
   socket.on("subscribe_events", async (data, events, ack) => {
     console.log("--------|||||subscribing-events-starts|||||-------");
     try {
+      console.log("0ccccccccccc", data);
       const host = await get_hash_online_data({ role: data.role, id: data.id });
       if (!host) {
         throw new ApiError(404, "function failed to fetch the result");
@@ -279,7 +276,7 @@ module.exports = (socket, io) => {
 
                   const publish_data_to_patient =
                     await publish_to_patient_information_channel(
-                      [newPayload, []],
+                      [ newPayload, [] ],
                       pub
                     );
                   if (!publish_data_to_patient) {
@@ -470,7 +467,7 @@ module.exports = (socket, io) => {
   });
   socket.on(
     "sending_message",
-    async (receiver, sender, socketid, message, ack) => {
+    async (receiver, sender, socketid, message, role, ack) => {
       console.log("--------|||||sending-message-starts|||||-------");
       //1.check if any incoming-data is missing
       //2.find the sender in db
@@ -484,62 +481,32 @@ module.exports = (socket, io) => {
       //10.push the same message for the reviver in to sorted list with a tag
 
       try {
-        //1
-        const find_sender = await lookup_in_all_collections(sender?.sender);
-        if (find_sender) {
-          console.log("test2->success");
-        } else {
-          console.log("test2->failed");
-          throw new ApiError(500, "function failed to produce any result");
-        }
 
-        //2
-        const sender_isActiveDoctors = socketCollection.get(
-          find_sender?._id.toString()
-        );
-        if (sender_isActiveDoctors && sender_isActiveDoctors.active) {
+        //1
+        const sender_isActiveDoctors = await return_the_doc({
+          role: role,
+          id: sender?.sender
+        })
+        if (sender_isActiveDoctors && sender_isActiveDoctors?.online) {
           console.log("test3->passed");
         } else {
           console.log("test3->failed");
           throw new ApiError(500, "sender is not active ");
         }
 
-        //3
-        const receiver_isActiveDoctors = socketCollection.get(
-          receiver?.receiver
-        );
-        if (receiver_isActiveDoctors && receiver_isActiveDoctors?.active) {
+        //2
+        const receiver_isActiveDoctors = await return_the_doc({
+          role: role === 'patient' ? 'doctor' : role,
+          id: receiver?.receiver
+        })
+        if (receiver_isActiveDoctors && receiver_isActiveDoctors?.online) {
           console.log("test5->passed");
         } else {
           console.log("test5->failed");
         }
 
-        //4
-        const find_receiver = await lookup_in_all_collections(
-          receiver?.receiver
-        );
-        if (find_receiver) {
-          console.log("test6->passed");
-        } else {
-          console.log("test6->failed");
-          throw new ApiError(500, "function failed to produce any result");
-        }
 
-        //5
-        const save_to_db = await createMessage(
-          find_sender?._id,
-          find_receiver?._id,
-          sender?.role,
-          message
-        );
-        if (save_to_db) {
-          console.log("test7->passed");
-        } else {
-          console.log("test7->failed");
-          throw new ApiError(500, "function failed to create the message");
-        }
-
-        //6
+        //3
         pub.publish("chatbox", message, (err) => {
           if (err) {
             throw new ApiError(404, `could not publish the message:${err}`);
@@ -548,7 +515,7 @@ module.exports = (socket, io) => {
           }
         });
 
-        //7
+        //4
         const deliver_mesage = sending_data(
           {
             io: io,
@@ -566,11 +533,10 @@ module.exports = (socket, io) => {
           throw new ApiError(404, "data is pushed in the redis-list");
         }
 
-        //8
-        const time = new Date().getTime();
+        //5
         const forSender = await redis.zadd(
           `from:${find_sender?._id}:to${find_receiver?._id}`,
-          time,
+          new Date().getTime(),
           JSON.stringify({
             text: message,
             role: "me",
@@ -583,7 +549,7 @@ module.exports = (socket, io) => {
           throw new ApiError(404, "message was not pushed in the sorted list");
         }
 
-        //9
+        //6
         const forReciver = await redis.zadd(
           `from:${find_receiver?._id}:to${find_sender?._id}`,
           time,
@@ -606,193 +572,147 @@ module.exports = (socket, io) => {
       }
     }
   );
-  socket.on("listening_to_message", async (userid, socketid) => {
-    try {
-    } catch (error) {}
-  });
-  socket.on("fetch_from_redis", async (senderid, recipent, role) => {
-    console.log(role);
+  socket.on("fetch_from_redis", async (senderid, recipent, role, page, ack) => {
     console.log("||fetching from redis-sorted-set||");
-
-    if (role === "patient") {
-      const sender = await findPatientId(senderid);
-      if (!sender) {
-        throw new ApiError(500, "id is not valid could not find the sender");
-      }
-
-      const receiver = await findDoctorId(recipent);
-      if (!receiver) {
-        throw new ApiError(500, "id is not valid could not find the receiver");
-      }
-
-      const get_data_from_coll = socketCollection.get(senderid);
+    try {
+      const get_data_from_coll = await return_the_doc({
+        id: senderid,
+        role: role,
+      });
       if (!get_data_from_coll) {
-        throw new ApiError(500, "could nto find the user in socketcollection");
+        throw new ApiError(500, "could not find the user in socketcollection");
       }
 
-      const redis_messages = await redis.zrange(
-        `from:${sender._id}:to${receiver._id}`,
-        0,
-        -1,
-        "WITHSCORES"
-      );
+      const redis_messages = await fetch_mess_sorted_set({
+        Limit: (Limit = 10),
+        skip: (skip = (page - 1) * Limit),
+        senderid: senderid,
+        recipent: recipent,
+      });
+      if (!redis_messages) {
+        throw new ApiError(500, "could not find any messages");
+      }
 
       const messages = [];
-
       for (let i = 0; i < redis_messages.length; i += 2) {
         messages.push({
-          message: redis_messages[i],
-          timestamp: Number(redis_messages[i + 1]),
+          message: redis_messages[ i ],
+          timestamp: Number(redis_messages[ i + 1 ]),
         });
       }
-
-      if (redis_messages.length !== 0 || messages.length !== 0) {
-        pub.publish(
-          "patient_information_channel",
-          JSON.stringify(messages),
-          (err) => {
-            if (err) {
-              throw new ApiError(404, `could not publish the message:${err}`);
-            } else {
-              console.log(
-                "**********redis-message-published-to-(patient_information_channel)***********"
-              );
-            }
-          }
-        );
-
-        const deliver_mesage = sending_data(
-          {
-            io: io,
-            role: role,
-            reciverSocketid: get_data_from_coll?.socketid,
-          },
-          "redis_messages"
-        );
-        if (deliver_mesage) {
-          console.log("test8->passed");
-        } else {
-          console.log("test8->failed");
-          throw new ApiError(404, "data is pushed in the redis-list");
-        }
-      } else {
+      if (redis_messages.length === 0 || messages.length === 0) {
         console.log("hello there in no data right now in redis");
+      }
+
+      const publish_id_to_patient =
+        await publish_to_patient_information_channel(
+          {
+            data: messages,
+            role: role,
+          },
+          pub
+        );
+      if (!publish_id_to_patient) {
+        throw new ApiError(500, "could not publish any messages");
+      }
+
+      const deliver_mesage = sending_data(
+        {
+          io: io,
+          role: role,
+          reciverSocketid: get_data_from_coll?.socketid,
+        },
+        "redis_messages"
+      );
+      if (!deliver_mesage) {
+        throw new ApiError(404, "data is pushed in the redis-list");
       }
       console.log("||fetching from redis-starts||");
-    } else if (role === "doctor") {
-      const sender = await findDoctorId(senderid);
-      if (!sender) {
-        throw new ApiError(500, "id is not valid could not find the sender");
-      }
-
-      const receiver = await findPatientId(recipent);
-      if (!receiver) {
-        throw new ApiError(500, "id is not valid could not find the receiver");
-      }
-
-      const get_data_from_coll = socketCollection.get(senderid);
-      if (!get_data_from_coll) {
-        throw new ApiError(500, "could nto find the user in socketcollection");
-      }
-
-      const redis_messages = await client.hGet(
-        `messages:${sender?._id}`,
-        `with${receiver?._id}`
-      );
-      if (redis_messages.length !== 0) {
-        pub.publish("patient_information_channel", redis_messages, (err) => {
-          if (err) {
-            throw new ApiError(404, `could not publish the message:${err}`);
-          } else {
-            console.log(
-              "**********redis-message-published-to-(patient_information_channel)***********"
-            );
-          }
-        });
-
-        const deliver_mesage = sending_data(
-          {
-            io: io,
-            role: role,
-            reciverSocketid: get_data_from_coll?.socketid,
-          },
-          "redis_messages"
-        );
-        if (deliver_mesage) {
-          console.log("test8->passed");
-        } else {
-          console.log("test8->failed");
-          throw new ApiError(404, "data is pushed in the redis-list");
-        }
-      } else if (redis_messages === null) {
-        console.log("hello there in no data right now in redis");
-      }
+    } catch (error) {
+      console.error(error);
+      ack({ status: "error", error: error.message || "Internal error" });
     }
+
+    ack({ status: "ok" });
+
     console.log("||fetching from redis-sorted-set||");
   });
-  socket.on("manual-disconnect", async (data) => {
-    console.log("manual-disconnect-started", data);
-    const payload = {
-      role: data.role,
-      id: data.id,
-    };
+  socket.on("manual-disconnect", async (data, ack) => {
+    console.log("manual-disconnect-started");
 
-    const check_if_user_exists = await check_if_exits(payload);
-    if (!check_if_user_exists) {
-      console.warn("user does not exist");
-      console.log("ending the procedure");
-    } else {
-      const is_active = await get_hash_online_data(payload);
-      if (is_active) {
-        const parse = await parse_hash(is_active);
-        if (!parse) {
-          throw new ApiError(404, "could not parse");
-        } else if (!parse.online) {
-          console.warn("user is not online");
-        } else {
-          parse.online = false;
-          parse.socketid = null;
-          parse.lastActive = new Date().toISOString();
+    try {
+      const payload = {
+        role: data.role,
+        id: data.id,
+      };
 
-          const pushing = await push_hash_data({
-            role: data.role,
-            id: data.id,
-            data: parse,
-          });
+      const check_if_user_exists = await check_if_exits(payload);
+      if (!check_if_user_exists) {
+        console.warn("user does not exist");
+        console.log("ending the procedure");
+      } else {
+        const is_active = await get_hash_online_data(payload);
+        if (is_active) {
+          const parse = await parse_hash(is_active);
+          if (!parse) {
+            throw new ApiError(404, "could not parse");
+          } else if (!parse.online) {
+            console.warn("user is not online");
+          } else {
+            parse.online = false;
+            parse.socketid = null;
+            parse.lastActive = new Date().toISOString();
 
-          const fetch_online_doc = await fetch_all_data(payload);
-          if (!fetch_online_doc) {
-            throw new ApiError(404, "there is no data");
-          }
+            const pushing = await push_hash_data({
+              role: data.role,
+              id: data.id,
+              data: parse,
+            });
 
-          const publish_id_to_patient =
-            await publish_to_patient_information_channel(data?.id, pub);
-          if (!publish_id_to_patient) {
-            throw new ApiError(404, `could not publish the message: ${err}`);
-          }
+            const fetch_online_doc = await fetch_all_data(payload);
+            if (!fetch_online_doc) {
+              throw new ApiError(404, "there is no data");
+            }
 
-          const offline_data = sending_data({ io: io }, "offline_status");
-          if (!offline_data) {
-            throw new ApiError(500, "function failed to deliver the data");
-          }
+            const publish_id_to_patient =
+              await publish_to_patient_information_channel(
+                { data: data?.id, role: data.role },
+                pub
+              );
+            if (!publish_id_to_patient) {
+              throw new ApiError(404, `could not publish the message: ${err}`);
+            }
 
-          const newPayload = await fetch_all_data(payload);
-          if (!newPayload) {
-            throw new ApiError(404, "empty fetch");
-          }
+            const offline_data = sending_data({ io: io }, "offline_status");
+            if (!offline_data) {
+              throw new ApiError(500, "function failed to deliver the data");
+            }
 
-          const publish_data_to_patient =
-            await publish_to_patient_information_channel([newPayload, []], pub);
-          if (!publish_data_to_patient) {
-            throw new ApiError(404, "data could not be published");
-          }
+            const newPayload = await fetch_all_data(payload);
+            if (!newPayload) {
+              throw new ApiError(404, "empty fetch");
+            }
 
-          const online_data = sending_data({ io: io }, "online_Status");
-          if (!online_data) {
-            throw new ApiError(500, "function failed to deliver the data");
+            const publish_data_to_patient =
+              await publish_to_patient_information_channel(
+                { data: [ newPayload, [] ], role: data?.role },
+                pub
+              );
+            if (!publish_data_to_patient) {
+              throw new ApiError(404, "data could not be published");
+            }
+
+            const online_data = sending_data({ io: io }, "online_Status");
+            if (!online_data) {
+              throw new ApiError(500, "function failed to deliver the data");
+            }
           }
         }
       }
+      ack({ status: "ok" });
+    } catch (error) {
+      console.error(error);
+      ack({ status: "error", error: err.message || "Internal error" });
     }
   });
   socket.on("disconnect", async () => {
