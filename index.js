@@ -36,7 +36,13 @@ async function initialize() {
 }
 
 
-ioconnection();
+try {
+  ioconnection();
+  console.log("✅ Socket.IO initialized");
+} catch (err) {
+  console.error("❌ Socket.IO failed to initialize:", err);
+}
+
 
 (async () => {
   await initialize(); 
