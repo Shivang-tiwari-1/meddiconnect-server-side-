@@ -95,10 +95,10 @@ exports.client = redis.createClient({
   url: process.env.REDIS_URL,
 });
 
-exports.pub = new Redis( process.env.REDIS_URL);
+exports.pub = new Redis(process.env.REDIS_URL);
 
-exports.sub = new Redis( process.env.REDIS_URL);
+exports.sub = new Redis(process.env.REDIS_URL);
 
-exports.redis = new Redis();
+exports.redis = new Redis(process.env.REDIS_URL);
 
 exports.socketCollection = new Map();
