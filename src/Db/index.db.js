@@ -4,8 +4,15 @@ const ApiError = require("../Utils/Apierror.Utils");
 
 exports.connectToMongo = async () => {
   try {
+     if (!mongoUrl) {
+    const mongoUrl = process.env.MONGO_URL;
+
+  if (!mongoUrl) {
+    console.error("❌ MONGO_URL is not defined. Exiting.");
+    process.exit(1); // Immediately stop the app
+  }
       console.log("⛳ Mongo URI being used:", process.env.MONGO_URL);
-    const connectionInstance = await mongoose.connect(process.env.MONGO_URL);
+    const connectionInstance = await mongoose.connect(mongoUrl);
     console.log(
       "\n Mongoose connected !! DB host: ",
       connectionInstance.connection.host
