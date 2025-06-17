@@ -46,6 +46,7 @@ try {
 
 
 if (!sticky.listen(server, process.env.PORT || 8000)) {
+  // 🧠 MASTER PROCESS
   console.log("Master process PID:", process.pid);
 
   pub_sub_channle_Export();
@@ -60,12 +61,14 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
     cluster.fork();
   });
 } else {
+  // ⚙️ WORKER PROCESS
+  (async () => {
+    await initialize(); // ✅ Connect Mongo, Redis, Agenda ONLY in worker
+  })();
+
   server.listen(() => {
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
   });
-(async () => {
-  await initialize(); 
-})();
 
   process.on("uncaughtException", (err) => {
     console.error("Worker died due to uncaught exception:", err);
@@ -77,3 +80,4 @@ if (!sticky.listen(server, process.env.PORT || 8000)) {
     process.exit(0);
   });
 }
+
