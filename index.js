@@ -19,6 +19,12 @@ async function initialize() {
   console.log("🔄 Starting initialization...");
 
   try {
+      const mongoUrl = process.env.MONGO_URL;
+  console.log("⛳ MONGO_URL is:", mongoUrl); 
+
+  if (!mongoUrl) {
+    console.error("❌ MONGO_URL is undefined in worker. Check Render env.");
+  }
     await connectToMongo();
     console.log("✅ Mongo connected");
 
