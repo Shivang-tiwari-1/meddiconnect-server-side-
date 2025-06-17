@@ -89,14 +89,15 @@ exports.getSocketIo = () => {
   }
   return io;
 };
+console.log("REDIS_URL from env:", process.env.REDIS_URL);
 
 exports.client = redis.createClient({
-  url: process.env.REDIS_PORT,
+  url: process.env.REDIS_URL,
 });
 
-exports.pub = new Redis( process.env.REDIS_PORT);
+exports.pub = new Redis( process.env.REDIS_URL);
 
-exports.sub = new Redis( process.env.REDIS_PORT);
+exports.sub = new Redis( process.env.REDIS_URL);
 
 exports.redis = new Redis();
 
