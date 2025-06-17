@@ -91,22 +91,12 @@ exports.getSocketIo = () => {
 };
 
 exports.client = redis.createClient({
-  url: process.env.REDIS_PORT || "redis://127.0.0.1:6379",
+  url: process.env.REDIS_PORT,
 });
 
-exports.pub = new Redis({
-  url: "steady-panther-29758.upstash.io",
-  port: 6379,
-  username: "default",
-  token: "AXmUAAIjcDE2MGMwODlmMjAzN2U0NWJjOGRlM2VkMmU3YTE2NmZhZHAxMA",
-});
+exports.pub = new Redis("rediss://default:AY2LAAIjcDEzZGFlOGJhOGNiMjQ0MzdmYjk4NDExY2M4YWQ3YTkzZnAxMA@moved-ghost-36235.upstash.io:6379");
 
-exports.sub = new Redis({
-  url: "steady-panther-29758.upstash.io",
-  port: 6379,
-  username: "default",
-  token: "AXmUAAIjcDE2MGMwODlmMjAzN2U0NWJjOGRlM2VkMmU3YTE2NmZhZHAxMA",
-});
+exports.sub = new Redis("rediss://default:AY2LAAIjcDEzZGFlOGJhOGNiMjQ0MzdmYjk4NDExY2M4YWQ3YTkzZnAxMA@moved-ghost-36235.upstash.io:6379");
 
 exports.redis = new Redis();
 
