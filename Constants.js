@@ -15,7 +15,7 @@ exports.options = {
 };
 
 exports.corsOptions = {
-  origin: "http://localhost:5173",
+  origin: process.env.COROS_PORT,
   credentials: true,
 };
 
