@@ -30,7 +30,7 @@ const { findDoctorId } = require("../Repository/userRepository");
 //************************************scheduled-ALGO***************************************/
 
 const agenda = new Agenda({
-  db: { address: "mongodb://localhost:27017/DoctorManagment" },
+  db: { address:  process.env.MONGO_URL },
   debug: true,
   maxConcurrency: 10,
 });
