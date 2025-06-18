@@ -27,77 +27,7 @@ const { body } = require("express-validator");
 const upload = require("../Middleware/Multer.Middleware");
 const { cacheMiddlWare, setCahe } = require("../Middleware/Caching.Middleware");
 
-//create user
-router.post(
-  "/createuser",
-  upload.single("profileImage"),
-  [
-    body("name")
-      .custom((value) => {
-        if (!value || value.trim().length <= 3) {
-          throw new Error("Name is too short");
-        }
-        return true;
-      })
-      .withMessage("Name is too short"),
 
-    body("email").isEmail().withMessage("Invalid email address"),
-
-    body("password").isLength({ min: 5 }).withMessage("Password is too short"),
-
-    body("phone")
-      .custom((value) => {
-        if (!value && value.trime().length < 10) {
-          throw new Error("invalid phone number");
-        }
-        return true;
-      })
-      .withMessage("invalid phone number"),
-    body("address")
-      .custom((value) => {
-        if (!value) {
-          throw new Error("address field is required");
-        }
-        return true;
-      })
-      .withMessage("address field is required"),
-    body("role")
-      .custom((value) => {
-        if (!value) {
-          throw new Error("role is required");
-        }
-        return true;
-      })
-      .withMessage("role is required"),
-  ],
-  createUser
-);
-//login user
-router.post(
-  "/login",
-  [
-    body("email")
-      .custom((value) => {
-        if (!value) {
-          throw new Error("email field is empty");
-        }
-        return true;
-      })
-      .withMessage("email field is required"),
-    body("password").custom((value) => {
-      if (!value) {
-        throw new Error("password is required");
-      }
-    }),
-  ],
-  loginUser
-);
-//logout
-router.post("/logout", deoctorAuthentiaction, logout);
-//forgotpass
-router.post("/forgotpass", deoctorAuthentiaction, forgotPass);
-//refreshToken
-router.get("/refreshtoken", refreshAccessToken);
 //getdoctor data
 router.get(
   "/getDoctordata",
