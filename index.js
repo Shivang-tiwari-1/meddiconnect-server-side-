@@ -51,49 +51,49 @@ try {
 
 
 
-// if (!sticky.listen(server, process.env.PORT || 8000,{ address: '0.0.0.0' })) {
-//   // 🧠 MASTER PROCESS
-//   console.log("Master process PID:", process.pid);
+if (!sticky.listen(server, process.env.PORT || 8000,{ address: '0.0.0.0' })) {
+  // 🧠 MASTER PROCESS
+  console.log("Master process PID:", process.pid);
 
-//   pub_sub_channle_Export();
+  pub_sub_channle_Export();
 
-//   const numCPUs = require("os").availableParallelism();
-//   for (let i = 0; i < numCPUs; i++) {
-//     cluster.fork();
-//   }
+  const numCPUs = require("os").availableParallelism();
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-//   cluster.on("exit", (worker) => {
-//     console.log(`Worker ${worker.process.pid} died, restarting...`);
-//     cluster.fork();
-//   });
-// } else {
+  cluster.on("exit", (worker) => {
+    console.log(`Worker ${worker.process.pid} died, restarting...`);
+    cluster.fork();
+  });
+} else {
 
-//   server.listen(async() => {
-//        const mongoUrl = process.env.MONGO_URL;
-//     if (!mongoUrl) {
-//       console.error("❌ MONGO_URL is not defined. Exiting.");
-//       process.exit(1); // Immediately stop the app
-//     }
+  server.listen(async() => {
+       const mongoUrl = process.env.MONGO_URL;
+    if (!mongoUrl) {
+      console.error("❌ MONGO_URL is not defined. Exiting.");
+      process.exit(1); // Immediately stop the app
+    }
 
-//     console.log("⛳ Mongo URI being used:", mongoUrl);
-//         await initialize(); 
-//     console.log(`Worker running on http://localhost:${process.env.PORT}`);
-//   });
-
-//   process.on("uncaughtException", (err) => {
-//     console.error("Worker died due to uncaught exception:", err);
-//     process.exit(1);
-//   });
-
-//   process.on("SIGINT", () => {
-//     console.log(`Received SIGINT, exiting gracefully...`);
-//     process.exit(0);
-//   });
-// }
-
-
-  server.listen( process.env.PORT,"0.0.0.0",async() => {
-    await pub_sub_channle_Export()
+    console.log("⛳ Mongo URI being used:", mongoUrl);
         await initialize(); 
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
   });
+
+  process.on("uncaughtException", (err) => {
+    console.error("Worker died due to uncaught exception:", err);
+    process.exit(1);
+  });
+
+  process.on("SIGINT", () => {
+    console.log(`Received SIGINT, exiting gracefully...`);
+    process.exit(0);
+  });
+}
+
+
+  // server.listen( process.env.PORT,"0.0.0.0",async() => {
+  //   await pub_sub_channle_Export()
+  //       await initialize(); 
+  //   console.log(`Worker running on http://localhost:${process.env.PORT}`);
+  // });
