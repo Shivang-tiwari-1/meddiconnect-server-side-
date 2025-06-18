@@ -12,6 +12,7 @@ const {
 } = require("../Services/userServices");
 
 exports.createUser = asyncHandler(async (req, res) => {
+  console.log(req.body)
   const {
     name,
     email,
@@ -22,6 +23,8 @@ exports.createUser = asyncHandler(async (req, res) => {
     gender,
     latitude,
     longitude,
+    city,
+    country
   } = req.body;
   if (
     name &&
@@ -32,7 +35,9 @@ exports.createUser = asyncHandler(async (req, res) => {
     role &&
     gender &&
     latitude &&
-    latitude
+    longitude &&
+    city &&
+    country
   ) {
     console.log("test1-passed");
   } else {
