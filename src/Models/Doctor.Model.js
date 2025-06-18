@@ -41,10 +41,15 @@ const DoctorSchema = new mongoose.Schema(
       type: String,
       enum: ["point"],
     },
-    coordinates: {
-      type: [Number],
-      index: "2dsphere",
-      required: true,
+     coordinates: {
+      type: {
+        type: String,
+        enum: [ 'Point' ],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [ Number ],
+      }
     },
     specialization: [{ field: { type: String, required: true }, _id: false }],
     Max: { type: Number },
