@@ -5,17 +5,23 @@ const User = require("../Models/User.Model");
 const Messages = require("../Models/Message.Model");
 const ApiError = require("../Utils/Apierror.Utils");
 
-exports.createDoctor = async (doctorDate, uploadimage) => {
+exports.createDoctor = async (doctorDate, uploadimage, longitude, latitude) => {
   const { name, email, password, phone, address, role, gender } = doctorDate;
   const user = await Doctor.create({
-    name,
-    email,
-    password,
-    phone,
+  name: name,
+    email: email,
+    password: password,
+    phone: phone,
     profileImage: uploadimage,
-    address,
-    role,
-    gender,
+    address: address,
+    role: role,
+    gender: gender,
+    city: city,
+    country: country,
+    coordinates: {
+      type: "Point",
+      coordinates: [ parseFloat(longitude), parseFloat(latitude) ],
+    }
   });
 
   const hashData = await user?.hashPassword(user.password);
@@ -25,9 +31,8 @@ exports.createDoctor = async (doctorDate, uploadimage) => {
     return user;
   }
 };
-exports.createPatient = async (patientData, uploadimage) => {
-  const { name, email, password, phone, address, role, gender } = patientData;
-
+exports.createPatient = async (patientData, uploadimage, longitude, latitude) => {
+  const { name, email, password, phone, address, role, gender, city, country } = patientData;
   const user = await User.create({
     name: name,
     email: email,
@@ -37,6 +42,12 @@ exports.createPatient = async (patientData, uploadimage) => {
     address: address,
     role: role,
     gender: gender,
+    city: city,
+    country: country,
+    coordinates: {
+      type: "Point",
+      coordinates: [ parseFloat(longitude), parseFloat(latitude) ],
+    }
   });
   const hashData = await user?.hashPassword(user.password);
   if (!hashData && !user) {
