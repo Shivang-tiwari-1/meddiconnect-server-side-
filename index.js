@@ -51,7 +51,7 @@ try {
 
 
 
-if (!sticky.listen(server, process.env.PORT || 8000,{ address: '0.0.0.0' })) {
+if (!sticky.listen(server, process.env.PORT || 8000)) {
   // 🧠 MASTER PROCESS
   console.log("Master process PID:", process.pid);
 
