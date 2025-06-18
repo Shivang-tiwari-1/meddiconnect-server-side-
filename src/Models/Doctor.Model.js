@@ -354,6 +354,7 @@ DoctorSchema.pre("findOneAndUpdate", function (next) {
   }
   next();
 });
+DoctorSchema.index({ coordinates: '2dsphere' });
 
 DoctorSchema.methods.hashPassword = function (password) {
   return hashPassword.call(this, password);
