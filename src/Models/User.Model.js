@@ -17,9 +17,14 @@ const userSchema = new mongoose.Schema(
     profileImage: { type: String, unique: true },
     address: { type: String, required: true },
     coordinates: {
-      type: [Number],
-      index: "2dsphere",
-      required: true,
+      type: {
+        type: String,
+        enum: [ 'Point' ],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [ Number ],
+      }
     },
     refreshToken: { type: String },
     role: { type: String, required: true },
@@ -64,7 +69,7 @@ const userSchema = new mongoose.Schema(
         },
         visited: {
           type: String,
-          enum: ["fulfilled", "finished", "pending", "missed"],
+          enum: [ "fulfilled", "finished", "pending", "missed" ],
           default: "pending",
         },
       },
@@ -314,6 +319,7 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+userSchema.index({ coordinates: '2dsphere' });
 
 userSchema.methods.hashPassword = function (password) {
   return hashPassword.call(this, password);
