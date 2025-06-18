@@ -93,6 +93,7 @@ try {
 
 
   server.listen( process.env.PORT,"0.0.0.0",async() => {
+    await pub_sub_channle_Export()
         await initialize(); 
     console.log(`Worker running on http://localhost:${process.env.PORT}`);
   });
